@@ -4,9 +4,9 @@
 ### Index :
 1. [__Dex Auth__](#i1)
 
-## 1. Dex Auth <a name="i1"/>
+# 1. Dex Auth <a name="i1"/>
 
-### Dex Auth : ID Token through REST API
+## Dex Auth : ID Token through REST API
 __Dex__ 란 3rd Party로부터 _OAuth Token_ 을 가져와 관리하는 인증 도구로, Kubeflow를 설치하게 되면 Dex가 설치되는데, 이를 활용해서 KServe 기반의 Model Serving이후 필요한 인증 ID Token 값을 발급받고 이를 활용하여 Serving Model에 Data Input을 수행한다.
 
 <details>
@@ -32,7 +32,7 @@ Dex 인증을 요구하는 자원들을 호출하게 되면 _'/dex/auth'_ 로 Re
   - __KFP(Kubeflow Piplines SDK)__ 를 이용한 ID Token 발급
   - __REST API__ 를 이용한 ID Token 발급
 
-#### 초기 Authentication을 거치지 않은 경우
+### 초기 Authentication을 거치지 않은 경우
 ```'curl -v http://${HOST}:${PORT}/v2/models/${MODEL_NAME} -d ${INPUT_DATA}'``` 를 하게 되면 다음과 같은 Exception이 발생
 
 ![Alt Text][first_dex_trial_screen]
@@ -41,7 +41,7 @@ Authentication Issue로 인하여 Serving Model을 정상적으로 사용하지 
 - Dex에 등록된 _ID/Password_ 를 전달
 - _ID Token_ 발급을 통한 Authentication 수행
 
-#### REST API를 이용한 ID Token 발급
+### REST API를 이용한 ID Token 발급
 
 ID Token 발급 과정에서 사전에 Serving 했던 _'sklearn-irisv2'_ 라는 model을 기반으로 작업 수행
 1. Ingress Host IP & Port 설정 후 URI 호출
@@ -57,10 +57,13 @@ curl http://${INGRESS_HOST}:${INGRESS_PORT}/v2/models/sklearn-irisv2
 
 - 결과에서 Dex auth 요청하는 _href_ 부분을 복사 (/dex/auth?client_id=...HYb1)
 
+![Alt Text][ingress_url_call]
 
 2. __REQ__ value 얻기
 
 - 결과에서 req 값을 복사해서 REQ 변수로 할당
+
+![Alt Text][get_req]
 
 3. ID/Password를 통한 인증 수행
 
@@ -76,12 +79,18 @@ curl "http://${INGRESS_HOST}:${INGRESS_PORT}/dex/auth/local?req=${REQ}" \
 --data "login=${LOGIN}&password=${PASSWORD}"
 ```
 
+![Alt Text][account_and_req_auth]
+
 4. _approval_ 얻기
+
+![Alt Text][get_approval]
 
 5. __ID Token__ 값 얻기
 
 - ID Token 값을 얻으면 _반드시_ 기억하고 있어야 하며, 하루가 지나야 재발급 가능
 - ID Token 값은 _한 번_ 만 조회 가능하며, 두 번째 호출부터는 __'504 Gateway Timeout' Exception__ 이 발생
+
+![Alt Text][get_id_token_and_result]
 
 <details>
 <summary>set-cookies의 내용</summary>
@@ -99,7 +108,7 @@ curl "http://${INGRESS_HOST}:${INGRESS_PORT}/dex/auth/local?req=${REQ}" \
 </div>
 </details>
 
-#### ID Token을 활용한 Model Data Input Test
+### ID Token을 활용한 Model Data Input Test
 > Test는 Serving했던 Inference를 NodePort로 Expose 한 작업으로 1차 수행하고, 추후 Cluster IP를 통해 내부에서 작업한 내용을 Upload할 예정
 
 1. Serving된 Model __Pod__ 를 __NodePort__ 로 expose
@@ -125,4 +134,12 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT} http://${INGRESS_H
 
 - 결과 값 : Terminal - 정상적으로 수행되었음을 보여준다.
 
-[first_dex_trial_screen]:https://imgur.com/a/3QTqWTn.png
+![Alt Text][dex_auth_id_token_test_result]
+
+[first_dex_trial_screen]:https://imgur.com/ZNxXlKY.png
+[ingress_url_call]:https://imgur.com/rMZbdp0.png
+[get_req]:https://imgur.com/jfqjoN7.png
+[account_and_req_auth]:https://imgur.com/64fCZMx.png
+[get_approval]:https://imgur.com/AZ84iwi.png
+[get_id_token_and_result]:https://imgur.com/i57E2PJ.png
+[dex_auth_id_token_test_result]:https://imgur.com/UV3hZ9M.png
