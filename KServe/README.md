@@ -1,10 +1,10 @@
 # KServe
 > KServe 작업 과정에서 공부한 내용들을 정리한다.
 
-### Contents
-1. Dex Auth
+### Index :
+1. [__Dex Auth__](#i1)
 
-## 1. Dex Auth
+## 1. Dex Auth <a name="i1"/>
 
 ### Dex Auth : ID Token through REST API
 __Dex__ 란 3rd Party로부터 OAuth Token을 가져와 관리하는 인증 도구로, Kubeflow를 설치하게 되면 Dex가 설치되는데, 이를 활용해서 KServe 기반의 Model Serving이후 필요한 인증 ID Token 값을 발급받고 이를 활용하여 Serving Model에 Data Input을 수행한다.
