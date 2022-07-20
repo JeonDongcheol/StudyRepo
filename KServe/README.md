@@ -35,6 +35,8 @@ Dex 인증을 요구하는 자원들을 호출하게 되면 _'/dex/auth'_ 로 Re
 #### 초기 Authentication을 거치지 않은 경우
 ```'curl -v http://${HOST}:${PORT}/v2/models/${MODEL_NAME} -d ${INPUT_DATA}'``` 를 하게 되면 다음과 같은 Exception이 발생
 
+![Alt Text][first_dex_trial_screen]
+
 Authentication Issue로 인하여 Serving Model을 정상적으로 사용하지 못함 -> 해결 방안
 - Dex에 등록된 _ID/Password_ 를 전달
 - _ID Token_ 발급을 통한 Authentication 수행
@@ -122,3 +124,5 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT} http://${INGRESS_H
 ```
 
 - 결과 값 : Terminal - 정상적으로 수행되었음을 보여준다.
+
+[first_dex_trial_screen]:https://imgur.com/a/3QTqWTn.png
