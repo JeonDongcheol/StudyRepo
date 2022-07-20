@@ -1,12 +1,8 @@
 # KServe
 > KServe 작업 과정에서 공부한 내용들을 정리한다.
 
-<details>
-<summary> ### Dex Auth </summary>
-<div markdown="1">
-
-</div>
-</details>
+### Contents
+1. Dex Auth
 
 ## 1. Dex Auth
 
