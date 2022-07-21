@@ -3,16 +3,45 @@
 
 ### Index :
 1. [__What is KServe?__](#i1)
-2. [__Dex Auth__](#i2)
+2. [__Model Serving__](#i2)
+3. [__Dex Auth__](#i3)
 
 # 1. What is KServe? <a name="i1">
 > KServe에 대한 개념을 간략하게만 설명
 
-KServe는 Kubeflow의 KFServing가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트이다. 
+KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트이다. 
 
 \* Ref) Inference는 Machine Learning에서 학습된 Model을 올려서 실 데이터들을 입력 받아서 실제 output을 내는 것을 말한다고 보면 된다. 예를 들자면, 학습을 통해 강아지 고양이 분류 모델이 나오게 되면 이것을 Serving함으로써 Client가 새로운 Data를 Input하게 되면 그에 대한 output을 내줄 수 있다. (사실상 서비스로 배포하는 것)
 
-# 2. Dex Auth <a name="i2"/>
+------------------
+
+# 2. Model Serving <a name="i2" />
+> Test Env 1. KServe + ScikitLearn(Framework) + Google Cloud Storage(Model Path)
+
+KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test하는 것까지 진행하며, Test는 Kubernetes 같은 Container 안에서 배포하는 것을 가정하여, Ubuntu Image 기반의 Test Pod를 생성하고 그 안에서 __Cluster IP__를 통해 API를 호출한다.
+
+<details>
+<summary>Model Serving 과정</summary>
+<div markdown="1">
+1. Model 생성 (Python, Jupyter 등등 이용해서 Serving할 Model 생성)
+</div>
+<div markdown="2">
+2. InferenceService YAML file 작성 및 생성
+</div>
+<div markdown="3">
+3. Input Data, REST API 정보 가져오기
+</div>
+<div markdown="4">
+4. Serving한 Model 사용
+</div>
+</details>
+
+## Model 생성
+Model은 
+
+----------------------
+
+# 3. Dex Auth <a name="i3"/>
 
 ## Dex Auth : ID Token through REST API
 __Dex__ 란 3rd Party로부터 _OAuth Token_ 을 가져와 관리하는 인증 도구로, Kubeflow를 설치하게 되면 Dex가 설치되는데, 이를 활용해서 KServe 기반의 Model Serving이후 필요한 인증 ID Token 값을 발급받고 이를 활용하여 Serving Model에 Data Input을 수행한다.
