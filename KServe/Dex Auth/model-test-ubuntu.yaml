@@ -1,1 +1,16 @@
-
+# Test for Dex Auth & Inference Service Using Pod within Ubuntu Image
+# Just for test, no role
+apiVersion: v1
+kind: Pod
+metadata:
+  name: model-test-ubuntu
+  namespace: default
+spec:
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    command:
+      - sleep
+      - infinity
+  hostNetwork: true
+  dnsPolicy: Default
