@@ -346,6 +346,11 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUS
 
 ![Alt Text][dex_auth_id_token_test_result_cluster_ip]
 
+#### Reference :
+- [KServe Github](https://github.com/kserve/kserve)
+- [KServe Website](https://kserve.github.io/website)
+- [Dex 인증/우회](https://1week.tistory.com/83)
+
 [first_dex_trial_screen]:https://imgur.com/ZNxXlKY.png
 [ingress_url_call]:https://imgur.com/rMZbdp0.png
 [get_req]:https://imgur.com/jfqjoN7.png
