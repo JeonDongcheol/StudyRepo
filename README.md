@@ -4,5 +4,5 @@
 > 22.07.20(Wed) KServe - Dex Authentication 작업
 
 ## Contents
-1. [__Kubernetes__](./Kubernetes/README.md)
-2. [__KServe/KfServing__](./KServe/README.md)
+1. [__Kubernetes__](./Kubernetes)
+2. [__KServe/KfServing__](./KServe)
