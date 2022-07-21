@@ -1,7 +1,9 @@
 # Doncheol Jeon Personal Study/Work Note
 > 공부/작업 과정에서 보관해두어야할 자료들을 정리
 
-> 22.07.20(Wed) KServe - Dex Authentication 작업
+> 22.07.21(Thur) KServe - Model Serving 작업
+
+> 문의 사항 : aseah@naver.com
 
 ## Contents
 1. [__Kubernetes__](./Kubernetes)
