@@ -1,5 +1,6 @@
-# KServe
-> KServe 작업 과정에서 공부한 내용들을 정리한다.
+# KServe <a name="first">
+> 공부한 내용 & 실습들을 정리
+> Index를 통해서 필요한 부분으로 이동할 수 있도록 해두었으니 참조
 
 ### Index :
 1. [__What is KServe?__](#i1)
@@ -12,6 +13,8 @@
 KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트이다. 
 
 \* Ref) Inference는 Machine Learning에서 학습된 Model을 올려서 실 데이터들을 입력 받아서 실제 output을 내는 것을 말한다고 보면 된다. 예를 들자면, 학습을 통해 강아지 고양이 분류 모델이 나오게 되면 이것을 Serving함으로써 Client가 새로운 Data를 Input하게 되면 그에 대한 output을 내줄 수 있다. (사실상 서비스로 배포하는 것)
+
+###### <- 처음으로 (#first)
 
 ------------------
 
@@ -97,6 +100,8 @@ kubectl get pod -n kubeflow-user-example-com | grep sklearn-iris
 - 결과 화면
   
 ![Alt Text][check_inference_service_status]
+
+###### <- 처음으로 (#first)
 
 ----------------------
 
@@ -265,6 +270,8 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUS
 - 결과 (Terminal) : 정상적으로 수행되었음
 
 ![Alt Text][dex_auth_id_token_test_result_cluster_ip]
+
+###### <- 처음으로 (#first)
 
 
 [first_dex_trial_screen]:https://imgur.com/ZNxXlKY.png
