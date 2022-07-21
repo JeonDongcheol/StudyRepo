@@ -1,4 +1,4 @@
-# KServe <a name="first" />
+# KServe
 > 공부한 내용 & 실습들을 정리
 > Index를 통해서 필요한 부분으로 이동할 수 있도록 해두었으니 참조
 
@@ -13,8 +13,6 @@
 KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트이다. 
 
 \* Ref) Inference는 Machine Learning에서 학습된 Model을 올려서 실 데이터들을 입력 받아서 실제 output을 내는 것을 말한다고 보면 된다. 예를 들자면, 학습을 통해 강아지 고양이 분류 모델이 나오게 되면 이것을 Serving함으로써 Client가 새로운 Data를 Input하게 되면 그에 대한 output을 내줄 수 있다. (사실상 서비스로 배포하는 것)
-
-###### <- 처음으로(#first)
 
 ------------------
 
@@ -101,7 +99,20 @@ kubectl get pod -n kubeflow-user-example-com | grep sklearn-iris
   
 ![Alt Text][check_inference_service_status]
 
-###### <- 처음으로 (#first)
+정상적으로 올라가는 것을 확인했다면, Input Data와 Serving Model에 대한 REST API 정보를 가져와야하는는데, _Protocol Version_ __V2__ 기준으로 Serving Model에 대한 Predict Endpoint는 ```/v2/models/${MODEL_NAME}/infer``` 이 된다.
+
+REST API에서 IP, Port 정보는 Kubernetes 환경 안에서만 서빙하는 용도로 사용하기 때문에 Cluster IP와 기본으로 설정된 Port인 80 Port만 가져와도 된다.
+
+또한, 이를 사용하기 위해서는 Kubeflow 초기 설치 과정에서 설치된 Dex 인증 관련해서 ID Token 값을 가져와야하는데, 이는 밑에서 다루기 때문에 발급 받았다고 가정하고 진행한다.
+
+Input Datasms 
+
+```shell
+# Serving Model의 Cluter IP 정보를 확인
+# 기본적으로 svc는 4개가 생성이 되는데,
+# 여기서 ${MODEL_NAME}-predictor-default-xxxx-private의 Cluster IP를 가져온다.
+kubectl get svc -n kubeflow-user-example-com | grep sklearn-iris
+```
 
 ----------------------
 
@@ -270,9 +281,6 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUS
 - 결과 (Terminal) : 정상적으로 수행되었음
 
 ![Alt Text][dex_auth_id_token_test_result_cluster_ip]
-
-###### <- 처음으로 (#first)
-
 
 [first_dex_trial_screen]:https://imgur.com/ZNxXlKY.png
 [ingress_url_call]:https://imgur.com/rMZbdp0.png
