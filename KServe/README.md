@@ -56,7 +56,7 @@ dump(clf, 'iris-model.joblib') # iris-model.joblib으로 Model이 생성
   
 ## InferenceService YAML file 작성 및 생성
   
-- Serving하기 위한 Model이 담긴 YAML file을 작성한다.
+- Serving하기 위한 Model이 담긴 __YAML__ file을 작성한다.
   
 ```yaml
 # Version에 따라서 YAML 구조가 조금씩 다르게 나타나기 때문에 Version은 반드시 확인하고 넘어간다.
@@ -86,8 +86,17 @@ kubectl create -f sklearn-iris.yaml
 
 Model을 생성하고 정상적으로 Kubernetes에 Serving을 했다면, 다음과 같은 명령어를 통해 정상적으로 올라갔는지 확인할 수 있다.
   
+```shell
+# Serving한 Model의 이름과 -n 옵션을 통해 Namespace를 선언
+kubectl get isvc sklearn-iris -n kubeflow-user-example-com
+  
+# Pod에도 정상적으로 올라갔는지 확인
+kubectl get pod -n kubeflow-user-example-com | grep sklearn-iris
+```
 
-
+- 결과 화면
+  
+![Alt Text][check_inference_service_status]
 
 ----------------------
 
@@ -266,3 +275,4 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUS
 [get_id_token_and_result]:https://imgur.com/i57E2PJ.png
 [dex_auth_id_token_test_result]:https://imgur.com/UV3hZ9M.png
 [dex_auth_id_token_test_result_cluster_ip]:https://imgur.com/fff0Uc8.png
+[check_inference_service_status]:https://imgur.com/3ZTMVhU.png
