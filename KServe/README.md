@@ -101,11 +101,9 @@ kubectl get pod -n kubeflow-user-example-com | grep sklearn-iris
 
 정상적으로 올라가는 것을 확인했다면, Input Data와 Serving Model에 대한 REST API 정보를 가져와야하는는데, _Protocol Version_ __V2__ 기준으로 Serving Model에 대한 Predict Endpoint는 ```/v2/models/${MODEL_NAME}/infer``` 이 된다.
 
-REST API에서 IP, Port 정보는 Kubernetes 환경 안에서만 서빙하는 용도로 사용하기 때문에 Cluster IP와 기본으로 설정된 Port인 80 Port만 가져와도 된다.
+REST API에서 IP, Port 정보는 Kubernetes 환경 안에서만 서빙하는 용도로 사용하기 때문에 __Cluster IP__ 와 기본으로 설정된 Port인 __80__ Port만 가져와도 된다. (Personal하게 설정이 가능하긴 하지만, 일단 default로 정해진 80 포트를 이용한다.)
 
-또한, 이를 사용하기 위해서는 Kubeflow 초기 설치 과정에서 설치된 Dex 인증 관련해서 ID Token 값을 가져와야하는데, 이는 밑에서 다루기 때문에 발급 받았다고 가정하고 진행한다.
-
-Input Datasms 
+또한, 이를 사용하기 위해서는 Kubeflow 초기 설치 과정에서 설치된 __Dex 인증__ 관련해서 _ID Token_ 값을 가져와야하는데, 이는 밑에서 다루기 때문에 발급 받았다고 가정하고 진행한다.
 
 ```shell
 # Serving Model의 Cluter IP 정보를 확인
@@ -113,6 +111,72 @@ Input Datasms
 # 여기서 ${MODEL_NAME}-predictor-default-xxxx-private의 Cluster IP를 가져온다.
 kubectl get svc -n kubeflow-user-example-com | grep sklearn-iris
 ```
+
+Input Data는 _Ubuntu_ Image가 들어간 __Pod__ 에서 진행하는데, 그 곳에 Test data를 만들어준다. 가상으로 만드는 Pod YAML의 구조는 다음과 같다.
+
+```shell
+# Just Test 용도이므로 굳이 복잡할 필요가 없다.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: inference-test-pod
+  namespace: default
+spec:
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    command:
+      - sleep
+      - infinity
+  hostNetwork: true
+  dnsPolicy: Default
+```
+
+YAML file을 만들고 ```kubectl create -f inference-test-pod.yaml```을 했다면, 정상적으로 Pod가 생성될 것이고, 이곳 shell script에 접속한다. ```kubectl exec --stdin --tty inference-test-pod -n default -- /bin/bash``` 접속을 하게 되면 간단하게 _vi_ 관련하여 설정 및 설치를 진행한다. (Optional) 이후에 ID Token 값과 Cluster IP, Port를 설정해주고, 테스트를 위한 Input data를 생성해준다. 여기서는 ```iris-input.json``` 파일을 가져다가 쓴다.
+
+```shell
+# 반드시 Pod 안의 환경에서 진행
+apt-get update
+# vi command 사용을 위한 설치
+apt-get install vim
+
+ID_TOKEN=${ID TOKEN 값}
+CLUSTER_IP=${Cluster IP 값}
+CLUSTER_PORT=80
+```
+
+- __iris-input.json__
+
+```json
+{
+  "inputs": [
+    {
+      "name": "input-0",
+      "shape": [2, 4],
+      "datatype": "FP32",
+      "data": [
+        [6.8, 2.8, 4.8, 1.4],
+        [6.0, 3.4, 4.5, 1.6]
+      ]
+    }
+  ]
+}
+```
+
+여기까지 설정했다면, Serving 했던 Model을 Test 해볼 수 있는 환경이 만들어진 것이고, 이것을 그대로 ```curl``` 을 통해서 __POST__ action을 해주면 정상적으로 동작하는 것을 확인할 수 있다.
+
+```shell
+# Model Name, d 옵션의 보낼 파일은 맞춰서 설정
+curl -v -H "Cookie: authservice_session=${TOKEN}" -d @./iris-input.json http://${CLUSTER_IP}:${CLUSTER_PORT}/v2/models/${MODEL_NAME}/infer
+```
+
+정상적으로 동작을 했다면, 다음과 같은 결과가 나오게 된다.
+
+![Alt Text][test_model_serving_result]
+
+### Persistant Volume Claim Case
+
+위의 예제는 _Google Cloud Storage_ 를 통해서 Test를 진행한 예제였다. 만약에 _Custom Model_ 을 생성했는데, 이것이 __PVC__ 에 저장되어 있다면 InferenceService YAML file을 만들면서 storageUri의 접두어를 ```pvc://``` 로 바꾼 다음 경로는 ```pvc://${PVC_NAME}/${PATH}``` 로 설정해준 뒤에 Serving을 해주고 나머지는 그대로 수행해주면 된다. (따로 가이드하지 않는다. 정말 이거 하나만 잘 설정해주면 끝나기 때문에...)
 
 ----------------------
 
@@ -291,3 +355,4 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUS
 [dex_auth_id_token_test_result]:https://imgur.com/UV3hZ9M.png
 [dex_auth_id_token_test_result_cluster_ip]:https://imgur.com/fff0Uc8.png
 [check_inference_service_status]:https://imgur.com/3ZTMVhU.png
+[test_model_serving_result]:https://imgur.com/r07rpPn.png
