@@ -5,4 +5,4 @@
 
 ## Contents
 1. Kubernetes
-2. [__KServe/KfServing__](../KServe/README.md)
+2. [__KServe/KfServing__](./KServe/README.md)
