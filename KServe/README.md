@@ -6,6 +6,7 @@
 1. [__What is KServe?__](#i1)
 2. [__Model Serving__](#i2)
 3. [__Dex Auth__](#i3)
+4. [__Test via Predictor Framework__](#i4)
 
 # 1. What is KServe? <a name="i1" />
 > KServe에 대한 개념을 간략하게만 설명
@@ -345,6 +346,36 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUS
 - 결과 (Terminal) : 정상적으로 수행되었음
 
 ![Alt Text][dex_auth_id_token_test_result_cluster_ip]
+
+# 4. Test via Predictor Framework <a name="i4" />
+> KServe Testing을 Framework 단위로 진행한다.
+> Testing은 Kubernetes 내부를 통해서 진행하기 때문에 Cluster IP만을 사용한다.
+
+<details>
+<summary>Supporting Framework</summary>
+<div markdown="1">
+- Google Tensorflow
+</div>
+<div markdown="2">
+- Scikit-Learn
+</div>
+<div markdown="3">
+- Facebook PyTorch
+</div>
+<div markdown="4">
+- NVIDIA Triton Inference Service
+</div>
+<div markdown="4">
+- ONNX (Open Neural Network Exchange)
+</div>
+<div markdown="4">
+- XGBoost (Extreme Gradient Boosting)
+</div>
+</details>
+
+## 
+
+-------------------
 
 #### Reference :
 - [KServe Github](https://github.com/kserve/kserve)
