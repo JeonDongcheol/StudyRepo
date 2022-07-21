@@ -109,7 +109,12 @@ curl "http://${INGRESS_HOST}:${INGRESS_PORT}/dex/auth/local?req=${REQ}" \
 </details>
 
 ### ID Token을 활용한 Model Data Input Test
-> Test는 Serving했던 Inference를 NodePort로 Expose 한 작업으로 1차 수행하고, 추후 Cluster IP를 통해 내부에서 작업한 내용을 Upload할 예정
+> Test Env 1. : Serving했던 Model Pod를 NodePort로 Expose 후 Testing
+> Test Env 2. : KServe로 Serving 후 생긴 Service에서 Model의 Cluster IP를 통한 Testing (Prerequisite : Ubuntu Image를 올린 Pod 배포)
+
+
+#### Test Env 1.
+KServe로 Serving했던 Model _Pod_ 를 __NodePort__ 로 Expose 후 Test를 진행하는데, 과정은 다음과 같다.
 
 1. Serving된 Model __Pod__ 를 __NodePort__ 로 expose
 2. 해당 Service의 _8080 NodePort_ 를 가져옴
@@ -132,9 +137,39 @@ TOKEN=MTY...YtfZ
 curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT} http://${INGRESS_HOST}:${NODE_PORT}/v2/models/sklearn-irisv2/infer
 ```
 
-- 결과 값 : Terminal - 정상적으로 수행되었음을 보여준다.
+- 결과(Terminal) : 정상적으로 수행되었음을 보여준다.
 
 ![Alt Text][dex_auth_id_token_test_result]
+
+#### Test Env 2.
+KServe로 Serving 후 생긴 Inference의 Service에서 Model의 __Cluster IP__ 를 통한 Testing으로, 과정은 다음과 같다.
+
+1. Ubuntu Image가 올라간 임의의 Pod 생성
+2. 해당 Pod의 Shell Connection
+3. input data 샘플(iris-input.json) 생성
+4. Serving Model의 private svc Cluster IP를 가져옴
+5. ID Token 값을 활용해 인증한 뒤에 Test
+
+```shell
+# Ubuntu가 들어있는 Pod를 정의한 YAML 이름을 model-test-ubuntu라고 가정
+kubectl create -f model-test-ubuntu
+
+# 생성된 Pod의 shell connection
+kubectl exec --stdin --tty model-test-ubuntu -n ${Pod Namespace} -- /bin/bash
+
+# 임의의 경로로 이동한 뒤에 input data(iris-input.json)을 생성한 뒤 Cluster IP, Port, Token 설정 (Test에서는 80으로 함)
+CLUSTER_IP=${Served Model Private Service Cluster IP}
+CLUSTER_PORT=80
+TOKEN=${ID Token Value}
+
+# ID Token 인증 후 Testing
+curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUSTER_IP}:${CLUSTER_PORT}/v2/models/${MODEL_NAME}/infer
+```
+
+- 결과 (Terminal) : 정상적으로 수행되었음
+
+![Alt Text][dex_auth_id_token_test_result_cluster_ip]
+
 
 [first_dex_trial_screen]:https://imgur.com/ZNxXlKY.png
 [ingress_url_call]:https://imgur.com/rMZbdp0.png
@@ -143,3 +178,4 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT} http://${INGRESS_H
 [get_approval]:https://imgur.com/AZ84iwi.png
 [get_id_token_and_result]:https://imgur.com/i57E2PJ.png
 [dex_auth_id_token_test_result]:https://imgur.com/UV3hZ9M.png
+[dex_auth_id_token_test_result_cluster_ip]:https://imgur.com/fff0Uc8.png
