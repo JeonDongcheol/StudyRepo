@@ -2,9 +2,17 @@
 > KServe 작업 과정에서 공부한 내용들을 정리한다.
 
 ### Index :
-1. [__Dex Auth__](#i1)
+1. [__What is KServe?__](#i1)
+2. [__Dex Auth__](#i2)
 
-# 1. Dex Auth <a name="i1"/>
+# 1. What is KServe? <a name="i1">
+> KServe에 대한 개념을 간략하게만 설명
+
+KServe는 Kubeflow의 KFServing가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트이다. 
+
+\* Ref) Inference는 Machine Learning에서 학습된 Model을 올려서 실 데이터들을 입력 받아서 실제 output을 내는 것을 말한다고 보면 된다. 예를 들자면, 학습을 통해 강아지 고양이 분류 모델이 나오게 되면 이것을 Serving함으로써 Client가 새로운 Data를 Input하게 되면 그에 대한 output을 내줄 수 있다. (사실상 서비스로 배포하는 것)
+
+# 2. Dex Auth <a name="i2"/>
 
 ## Dex Auth : ID Token through REST API
 __Dex__ 란 3rd Party로부터 _OAuth Token_ 을 가져와 관리하는 인증 도구로, Kubeflow를 설치하게 되면 Dex가 설치되는데, 이를 활용해서 KServe 기반의 Model Serving이후 필요한 인증 ID Token 값을 발급받고 이를 활용하여 Serving Model에 Data Input을 수행한다.
