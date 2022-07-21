@@ -1,0 +1,16 @@
+# API Version을 맞추지 않으면 문제가 발생할 수도 있음
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: "sklearn-iris"
+  # Namespace를 할당해야하는 경우는 여기서도 할당 가능하고 kubectl create 과정에서도 할당 가능
+  # namespace: ${NAMESPACE}
+spec:
+  predictor:
+    # Predictor의 종류 : sklearn, tensorflow, pytorch, onnx, triton...
+    sklearn:
+      protocolVersion: "v2"
+      storageUri: "gs://seldon-models/sklearn/iris"
+      # [Case 2] Persistant Volume Claim
+      # storageUri: "pvc://${PVC_NAME}/${PATH}"
+      # Inference를 생성하면서 Detail한 Spece들을 추가할 수 있는데, 여기서는 생략한다.
