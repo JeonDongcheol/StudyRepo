@@ -16,9 +16,8 @@ KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 �
 ------------------
 
 # 2. Model Serving <a name="i2" />
-> Test Env 1. KServe + ScikitLearn(Framework) + Google Cloud Storage(Model Path)
 
-KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test하는 것까지 진행하며, Test는 Kubernetes 같은 Container 안에서 배포하는 것을 가정하여, Ubuntu Image 기반의 Test Pod를 생성하고 그 안에서 __Cluster IP__를 통해 API를 호출한다.
+KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test하는 것까지 진행하며, Test는 Kubernetes 같은 Container 안에서 배포하는 것을 가정하여, Ubuntu Image 기반의 Test Pod를 생성하고 그 안에서 __Cluster IP__를 통해 API를 호출한다. Test는 ScikitLearn의 Iris 분류 Model을 기반으로 진행하였다.
 
 <details>
 <summary>Model Serving 과정</summary>
@@ -37,7 +36,58 @@ KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test하�
 </details>
 
 ## Model 생성
-Model은 
+  
+Model의 생성 방법은 다양하다. 대중적으로 사용되는 모델은 이미 생성된 Model File이 Cloud에 저장되어 있을 수도 있고, Custom Model의 경우에는 PVC, Local, 개인 Cloud Storage...등에 저장이 되어있을 수 있다. 여기서는 __[1] Google Cloud Storage 의 Model__ 과 __[2] Persistant Volume Claim(PVC)__ 에 올린 Custom Model을 Serving하는 Test를 진행한다. [1]의 경우에는 추후 YAML file 생성 과정에서 storage URI를 작성하는데, 그 부분에 gcs:// 접두사와 함께 Storage 경로를 작성하면 되기 때문에 그 때 다룬다.
+  
+```python
+from sklearn import svm # Support Vector Machine module import
+from sklearn import datasets # ScikitLearn에 있는 Iris data set을 가져오기 위한 module import
+from joblib import dump # 추후 Model을 떨구기 위한 Module
+  
+# Data와 label 선언
+iris_datasets = datasets.load_iris()
+X, y = iris_datasets, iris.target
+
+clf = svm.SVC(gamma='scale')
+clf.fit(X, y)
+  
+dump(clf, 'iris-model.joblib') # iris-model.joblib으로 Model이 생성
+```
+  
+## InferenceService YAML file 작성 및 생성
+  
+- Serving하기 위한 Model이 담긴 YAML file을 작성한다.
+  
+```yaml
+# Version에 따라서 YAML 구조가 조금씩 다르게 나타나기 때문에 Version은 반드시 확인하고 넘어간다.
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: "sklearn-iris"
+  # Namespace는 필요에 맞춰서 선언해주면 된다.
+  # namespace: "kubeflow-user-example-com"
+spec:
+  predictor:
+    # Predictor Framework
+    sklearn:
+      # Serving Protocol Version
+      ProtocolVersion: "v2"
+      # Model Storage Path
+      storageUri: "gs://seldon-models/sklearn/iris"
+```
+
+- YAML file을 만들었다면 Kubernetes에 올린다.
+  
+```shell
+kubectl create -f sklearn-iris.yaml
+```
+
+## Input data & Serving Model에 대한 REST API 정보 가져오기
+
+Model을 생성하고 정상적으로 Kubernetes에 Serving을 했다면, 다음과 같은 명령어를 통해 정상적으로 올라갔는지 확인할 수 있다.
+  
+
+
 
 ----------------------
 
