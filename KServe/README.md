@@ -7,14 +7,14 @@
 2. [__Model Serving__](#i2)
 3. [__Dex Auth__](#i3)
 
-# 1. What is KServe? <a name="i1">
+# 1. What is KServe? <a name="i1" />
 > KServe에 대한 개념을 간략하게만 설명
 
 KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트이다. 
 
 \* Ref) Inference는 Machine Learning에서 학습된 Model을 올려서 실 데이터들을 입력 받아서 실제 output을 내는 것을 말한다고 보면 된다. 예를 들자면, 학습을 통해 강아지 고양이 분류 모델이 나오게 되면 이것을 Serving함으로써 Client가 새로운 Data를 Input하게 되면 그에 대한 output을 내줄 수 있다. (사실상 서비스로 배포하는 것)
 
-###### <- 처음으로 (#first)
+###### <- 처음으로(#first)
 
 ------------------
 
