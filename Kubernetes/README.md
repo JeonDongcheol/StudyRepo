@@ -1,11 +1,13 @@
 # Kubernetes
 > 공부한 내용 & 실습들을 정리
 > Index를 통해서 필요한 부분으로 이동할 수 있도록 해두었으니 참조
+> Kubernetes & Kubeflow 느낀점 : 설치만 잘해도 반은 먹고 들어가는 것 같다.
 
 ### Index :
-1. [__Kubernets Installation__](#i1)
+1. [__Kubernets Installation__](#install_k8s)
+2. [__Kubeflow Installation__](#install_kubeflow)
 
-# 1. Kubernetes Installation <a name="i1" />
+# 1. Kubernetes Installation <a name="install_k8s" />
 > Kubernetes 설치하는 과정을 Command Line 위주로 서술한다.
 
 Kubernetes에 대한 개념은 이미 알고 있다고 가정을 하고 Kubernetes 구축 환경에 대해서 작성을 한다.
@@ -267,6 +269,11 @@ source ~/.bashrc
 - 모두 정상적으로 설치되었을 때 나오는 화면 :
 
 ![Alt Text][kubernetes_install_success]
+
+--------------------
+
+# 2. Kubeflow Installation <a name="install_kubeflow" />
+> Kubeflow에 대한 설치 과정을 Command Line 위주로 작성한다. 아무래도 생각보다 어려운 작업이 아닌가 싶다.
 
 -------------------
 
