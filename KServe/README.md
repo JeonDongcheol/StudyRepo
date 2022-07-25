@@ -3,12 +3,12 @@
 > Index를 통해서 필요한 부분으로 이동할 수 있도록 해두었으니 참조
 
 ### Index :
-1. [__What is KServe?__](#i1)
-2. [__Model Serving__](#i2)
-3. [__Dex Auth__](#i3)
+1. [__What is KServe?__](#about_kserve)
+2. [__Model Serving__](#model_serving)
+3. [__Dex Auth__](#dex_auth)
 4. [__Test via Predictor Framework__](#i4)
 
-# 1. What is KServe? <a name="i1" />
+# 1. What is KServe? <a name="about_kserve" />
 > KServe에 대한 개념을 간략하게만 설명
 
 KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트이다. 
@@ -17,7 +17,7 @@ KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 �
 
 ------------------
 
-# 2. Model Serving <a name="i2" />
+# 2. Model Serving <a name="model_serving" />
 
 KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test하는 것까지 진행하며, Test는 Kubernetes 같은 Container 안에서 배포하는 것을 가정하여, Ubuntu Image 기반의 Test Pod를 생성하고 그 안에서 __Cluster IP__를 통해 API를 호출한다. Test는 ScikitLearn의 Iris 분류 Model을 기반으로 진행하였다.
 
@@ -181,7 +181,7 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d @./iris-input.json http://$
 
 ----------------------
 
-# 3. Dex Auth <a name="i3"/>
+# 3. Dex Auth <a name="dex_auth"/>
 
 ## Dex Auth : ID Token through REST API
 __Dex__ 란 3rd Party로부터 _OAuth Token_ 을 가져와 관리하는 인증 도구로, Kubeflow를 설치하게 되면 Dex가 설치되는데, 이를 활용해서 KServe 기반의 Model Serving이후 필요한 인증 ID Token 값을 발급받고 이를 활용하여 Serving Model에 Data Input을 수행한다.
