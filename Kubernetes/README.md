@@ -213,9 +213,7 @@ kubectl version
 ```bash
 # Master Node에서 Initialization을 할 때 Endpoint는 Master Node가 설치되어 있는 Instance의 Private IP를 넣어준다.
 # 기본적으로 Kubernetes는 6443 Port를 사용한다.
-# kubeadm init을 하게 되면, Token, Certification Hash Key 값이 나옴 : 모르면 
-# kubeadm init을 하게 되면, 아래 
-# kubeadm init을 하게 되면, 
+# kubeadm init을 하게 되면, Token, Certification Hash Key 값이 나옴 : 모르면 아래의 Command를 참조한다.
 sudo kubeadm init --control-plane-endpoint "<Master Node Private IP>:6443" --upload-certs
 
 # (Optional) Token 값을 모를 때
@@ -236,6 +234,34 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
 - **Worker Node** (Master Node에서는 해당 작업을 수행하지 않음)
+
+```bash
+# Master Node와 Connection을 위한 작업으로, Master Node Private IP를 가져옴
+# Token, Certification Hash Value는 위에서 작업한 것을 토대로 가져온다.
+sudo kubeadm join <Master Node Private IP>:6443 --token <Token Value> --discovery-ca-cert-hash sha256:<Certification Hash Value>
+```
+
+- 여기까지 작업이 다 끝났다면, Master Node가 설치되어 있는 Instance를 시원하게 Reboot 해준 뒤에, CNI 설치하고 정상적으로 Connection이 되었는지 확인해준다.
+
+```bash
+# After Reboot
+curl https://docs.projectcalico.org/manifests/calico.yaml -O
+
+# Kubernetes에 다운받은 CNI 적용
+kubectl apply -f calico.yaml
+
+# Node Connection Check
+kubectl get nodes -o wide
+
+# (Optional) kubectl 명령어를 계속 쓰게 되는데 보통 alias 설정을 k로 해준 뒤에 작업을 많이 한다. 이에 대한 Command
+sudo vi ~/.bashrc
+
+# .bashrc에 alias 등록
+alias k='kubectl'
+
+# alias 적용 (kubectl -> k)
+source ~/.bashrc
+```
 
 -------------------
 
