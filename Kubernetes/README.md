@@ -6,7 +6,7 @@
 1. [__Kubernets Installation__](#i1)
 
 # 1. Kubernetes Installation <a name="i1" />
-> Kubernetes 설치 
+> Kubernetes 설치하는 과정을 Command Line 위주로 서술한다.
 
 Kubernetes에 대한 개념은 이미 알고 있다고 가정을 하고 Kubernetes 구축 환경에 대해서 작성을 한다.
 
