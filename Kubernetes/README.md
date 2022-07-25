@@ -241,7 +241,7 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 sudo kubeadm join <Master Node Private IP>:6443 --token <Token Value> --discovery-ca-cert-hash sha256:<Certification Hash Value>
 ```
 
-- 여기까지 작업이 다 끝났다면, Master Node가 설치되어 있는 Instance를 시원하게 Reboot 해준 뒤에, CNI 설치하고 정상적으로 Connection이 되었는지 확인해준다.
+- 여기까지 작업이 다 끝났다면, Master Node가 설치되어 있는 Instance를 시원하게 Reboot 해준 뒤에, __CNI__ 설치하고 정상적으로 Connection이 되었는지 확인해준다.
 
 ```bash
 # After Reboot
@@ -254,6 +254,7 @@ kubectl apply -f calico.yaml
 kubectl get nodes -o wide
 
 # (Optional) kubectl 명령어를 계속 쓰게 되는데 보통 alias 설정을 k로 해준 뒤에 작업을 많이 한다. 이에 대한 Command
+# .bashrc 열기 (Root 권한으로 Open)
 sudo vi ~/.bashrc
 
 # .bashrc에 alias 등록
