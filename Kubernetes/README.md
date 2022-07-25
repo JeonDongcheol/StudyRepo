@@ -3,10 +3,7 @@
 > Index를 통해서 필요한 부분으로 이동할 수 있도록 해두었으니 참조
 
 ### Index :
-1. [__Kubernets Installation Environment__](#i1)
-2. [__Model Serving__](#i2)
-3. [__Dex Auth__](#i3)
-4. [__Test via Predictor Framework__](#i4)
+1. [__Kubernets Installation__](#i1)
 
 # 1. Kubernetes Installation Environment <a name="i1" />
 > Kubernetes 설치 환경에 대한 간략한 서술
@@ -33,7 +30,14 @@ Kubernetes에 대한 개념은 이미 알고 있다고 가정을 하고 Kubernet
 </div>
 </details>
 
-```shell
+- 먼저 **Master Node 1대** 와 **Worker Node 3대** 의 환경을 구성하기 위한 기본 Setting을 진행한다.
+
+```bash
+# (Optional) 각 Instance에 SSH 접속을 하게 되면 Private IP 주소로 나오기 때문에 이에 대한 간단한 설정만 진행한다
+sudo su
+hostnamectl set-hostname <Node Name>
+su ec2-user
+
 # 기본적으로 ROOT USER가 아닐 때를 가정하고 진행한다.
 # 1. yum repo check
 sudo yum repolist all
@@ -42,395 +46,197 @@ sudo yum update -y
 # /etc/hosts에 Cluster를 구성할 IP를 넣어준다.
 sudo vi /etc/hosts
 
-# 안에 들어갈 내용
+# 안에 들어갈 내용 : 완료되면 저장하고 나온다.
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-# IPv6sdf는 사용
+# IPv6는 사용하지 않기 때문에 주석 처리
 #::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 
-172.31.36.95   sdc-master01
-172.31.37.229   sdc-worker01
-172.31.33.124   sdc-worker02
-172.31.37.44   sdc-worker03
+<Master Node Private IP>   master1
+<Worker1 Node Private IP>   worker01
+<Worker2 Node Private IP>   worker02
+<Worker3 Node Private IP>   worker03
 ```
 
-KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트이다. 
+- 기본 구성을 완료했다면, Kubernetes를 설치하기 전에 **Docker** 를 먼저 설치한다.
 
-\* Ref) Inference는 Machine Learning에서 학습된 Model을 올려서 실 데이터들을 입력 받아서 실제 output을 내는 것을 말한다고 보면 된다. 예를 들자면, 학습을 통해 강아지 고양이 분류 모델이 나오게 되면 이것을 Serving함으로써 Client가 새로운 Data를 Input하게 되면 그에 대한 output을 내줄 수 있다. (사실상 서비스로 배포하는 것)
+```bash
+# 사전에 Docker가 설치되어 있다면, 제거하고 다시 설치한다.
+sudo yum remove docker \
+docker-client \
+docker-client-latest \
+docker-common \
+docker-latest \
+docker-latest-logrotate \
+docker-logrotate \
+docker-engine \
+podman \
+runc
 
-------------------
+# Docker Repolist에 Base URL 추가
+sudo yum-config-manager \
+--add-repo \
+https://download.docker.com/linux/rhel/docker-ce.repo
 
-# 2. Model Serving <a name="i2" />
+# Docker Stable Base URL 수정을 위해 편집모드 이동
+sudo vi /etc/yum.repos.d/docker-ce.repo
 
-KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test하는 것까지 진행하며, Test는 Kubernetes 같은 Container 안에서 배포하는 것을 가정하여, Ubuntu Image 기반의 Test Pod를 생성하고 그 안에서 __Cluster IP__를 통해 API를 호출한다. Test는 ScikitLearn의 Iris 분류 Model을 기반으로 진행하였다.
+# 기존의 Docker CE Stable Base URL 부분을 주석 처리하고, 다음 내용을 추가한다.
+# 추가할 내용 : baseurl=https://download.docker.com/linux/centos/7/x86_64/stable
 
-<details>
-<summary>Model Serving 과정</summary>
-<div markdown="1">
-1. Model 생성 (Python, Jupyter 등등 이용해서 Serving할 Model 생성)
-</div>
-<div markdown="2">
-2. InferenceService YAML file 작성 및 생성
-</div>
-<div markdown="3">
-3. Input Data, REST API 정보 가져오기
-</div>
-<div markdown="4">
-4. Serving한 Model 사용
-</div>
-</details>
+# Docker 설치에 필요한 Package Install
+sudo yum install -y http://mirror.centos.org/centos/7/extras/x86_64/Packages/slirp4netns-0.4.3-4.el7_8.x86_64.rpm
+sudo yum install -y http://mirror.centos.org/centos/7/extras/x86_64/Packages/container-selinux-2.107-1.el7_6.noarch.rpm
+sudo yum install -y http://mirror.centos.org/centos/7/extras/x86_64/Packages/fuse3-libs-3.6.1-4.el7.x86_64.rpm
+sudo yum install -y http://mirror.centos.org/centos/7/extras/x86_64/Packages/fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
 
-## Model 생성
-  
-Model의 생성 방법은 다양하다. 대중적으로 사용되는 모델은 이미 생성된 Model File이 Cloud에 저장되어 있을 수도 있고, Custom Model의 경우에는 PVC, Local, 개인 Cloud Storage...등에 저장이 되어있을 수 있다. 여기서는 __[1] Google Cloud Storage 의 Model__ 과 __[2] Persistant Volume Claim(PVC)__ 에 올린 Custom Model을 Serving하는 Test를 진행한다. [1]의 경우에는 추후 YAML file 생성 과정에서 storage URI를 작성하는데, 그 부분에 gcs:// 접두사와 함께 Storage 경로를 작성하면 되기 때문에 그 때 다룬다.
-  
-```python
-from sklearn import svm # Support Vector Machine module import
-from sklearn import datasets # ScikitLearn에 있는 Iris data set을 가져오기 위한 module import
-from joblib import dump # 추후 Model을 떨구기 위한 Module
-  
-# Data와 label 선언
-iris_datasets = datasets.load_iris()
-X, y = iris_datasets, iris.target
+# Dokcer Pakage 설치
+sudo yum install docker-ce docker-ce-cli containerd.io -y
 
-clf = svm.SVC(gamma='scale')
-clf.fit(X, y)
-  
-dump(clf, 'iris-model.joblib') # iris-model.joblib으로 Model이 생성
-```
-  
-## InferenceService YAML file 작성 및 생성
-  
-- Serving하기 위한 Model이 담긴 __YAML__ file을 작성한다.
-  
-```yaml
-# Version에 따라서 YAML 구조가 조금씩 다르게 나타나기 때문에 Version은 반드시 확인하고 넘어간다.
-apiVersion: "serving.kserve.io/v1beta1"
-kind: "InferenceService"
-metadata:
-  name: "sklearn-iris"
-  # Namespace는 필요에 맞춰서 선언해주면 된다.
-  # namespace: "kubeflow-user-example-com"
-spec:
-  predictor:
-    # Predictor Framework
-    sklearn:
-      # Serving Protocol Version
-      ProtocolVersion: "v2"
-      # Model Storage Path
-      storageUri: "gs://seldon-models/sklearn/iris"
-```
 
-- YAML file을 만들었다면 Kubernetes에 올린다.
-  
-```shell
-kubectl create -f sklearn-iris.yaml
-```
+# 일반 사용자의 Docker 사용을 위한 작업
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
 
-## Input data & Serving Model에 대한 REST API 정보 가져오기
+# Docker 실행
+sudo systemctl start docker
 
-Model을 생성하고 정상적으로 Kubernetes에 Serving을 했다면, 다음과 같은 명령어를 통해 정상적으로 올라갔는지 확인할 수 있다.
-  
-```shell
-# Serving한 Model의 이름과 -n 옵션을 통해 Namespace를 선언
-kubectl get isvc sklearn-iris -n kubeflow-user-example-com
-  
-# Pod에도 정상적으로 올라갔는지 확인
-kubectl get pod -n kubeflow-user-example-com | grep sklearn-iris
-```
 
-- 결과 화면
-  
-![Alt Text][check_inference_service_status]
-
-정상적으로 올라가는 것을 확인했다면, Input Data와 Serving Model에 대한 REST API 정보를 가져와야하는는데, _Protocol Version_ __V2__ 기준으로 Serving Model에 대한 Predict Endpoint는 ```/v2/models/${MODEL_NAME}/infer``` 이 된다.
-
-REST API에서 IP, Port 정보는 Kubernetes 환경 안에서만 서빙하는 용도로 사용하기 때문에 __Cluster IP__ 와 기본으로 설정된 Port인 __80__ Port만 가져와도 된다. (Personal하게 설정이 가능하긴 하지만, 일단 default로 정해진 80 포트를 이용한다.)
-
-또한, 이를 사용하기 위해서는 Kubeflow 초기 설치 과정에서 설치된 __Dex 인증__ 관련해서 _ID Token_ 값을 가져와야하는데, 이는 밑에서 다루기 때문에 발급 받았다고 가정하고 진행한다.
-
-```shell
-# Serving Model의 Cluter IP 정보를 확인
-# 기본적으로 svc는 4개가 생성이 되는데,
-# 여기서 ${MODEL_NAME}-predictor-default-xxxx-private의 Cluster IP를 가져온다.
-kubectl get svc -n kubeflow-user-example-com | grep sklearn-iris
-```
-
-Input Data는 _Ubuntu_ Image가 들어간 __Pod__ 에서 진행하는데, 그 곳에 Test data를 만들어준다. 가상으로 만드는 Pod YAML의 구조는 다음과 같다.
-
-```shell
-# Just Test 용도이므로 굳이 복잡할 필요가 없다.
-apiVersion: v1
-kind: Pod
-metadata:
-  name: inference-test-pod
-  namespace: default
-spec:
-  containers:
-  - name: ubuntu
-    image: ubuntu
-    command:
-      - sleep
-      - infinity
-  hostNetwork: true
-  dnsPolicy: Default
-```
-
-YAML file을 만들고 ```kubectl create -f inference-test-pod.yaml```을 했다면, 정상적으로 Pod가 생성될 것이고, 이곳 shell script에 접속한다. ```kubectl exec --stdin --tty inference-test-pod -n default -- /bin/bash``` 접속을 하게 되면 간단하게 _vi_ 관련하여 설정 및 설치를 진행한다. (Optional) 이후에 ID Token 값과 Cluster IP, Port를 설정해주고, 테스트를 위한 Input data를 생성해준다. 여기서는 ```iris-input.json``` 파일을 가져다가 쓴다.
-
-```shell
-# 반드시 Pod 안의 환경에서 진행
-apt-get update
-# vi command 사용을 위한 설치
-apt-get install vim
-
-ID_TOKEN=${ID TOKEN 값}
-CLUSTER_IP=${Cluster IP 값}
-CLUSTER_PORT=80
-```
-
-- __iris-input.json__
-
-```json
+# /etc/docker 경로에 daemon.json 파일 추가 -> kubeadm init 시 kubelet 관련 이슈를 제거
+cat <<EOF | sudo tee /etc/docker/daemon.json
 {
-  "inputs": [
-    {
-      "name": "input-0",
-      "shape": [2, 4],
-      "datatype": "FP32",
-      "data": [
-        [6.8, 2.8, 4.8, 1.4],
-        [6.0, 3.4, 4.5, 1.6]
-      ]
-    }
-  ]
-}
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}cd
+EOF
+
+# Docker daemon reload 및 Docker Re-start
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo systemctl enable docker
 ```
 
-여기까지 설정했다면, Serving 했던 Model을 Test 해볼 수 있는 환경이 만들어진 것이고, 이것을 그대로 ```curl``` 을 통해서 __POST__ action을 해주면 정상적으로 동작하는 것을 확인할 수 있다.
+- 여기까지 Docker 설치가 Error 없이 잘 끝났다면, Kubernetes 설치하기 전 *System Configuration* 을 진행한다.
 
-```shell
-# Model Name, d 옵션의 보낼 파일은 맞춰서 설정
-curl -v -H "Cookie: authservice_session=${TOKEN}" -d @./iris-input.json http://${CLUSTER_IP}:${CLUSTER_PORT}/v2/models/${MODEL_NAME}/infer
+```bash
+# 방화벽 Disable : firewalld 자체가 없으면 Error
+sudo systemctl stop firewalld && sudo systemctl disable firewalld
+
+# Swap off
+swapoff -a && sudo sed -i '/swap/s/^/#/' /etc/fstab
+
+# SE Linux Off
+sudo setenforce 0
+sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+# Kubernetes Configuration Setting
+
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+br_netfilter
+EOF
+
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF
+
+sudo sysctl --system
+
+# Kubernetes, Centos 우회 Repo Registration
+# [주의!] 처음에 vi를 통해서 작성을 하게 되면 '$' 부분이 정상적으로 적용이 안되는 Case가 발생한다.
+# 반드시 re-check해주고 수정해준다.
+# [Kubernets Repo]
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+enabled=1
+gpgcheck=0
+#repo_gpgcheck=1
+#gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+exclude=kubelet kubeadm kubectl
+EOF
+
+#[Centos7 Repo]
+# 마찬가지로 re-check
+cat <<EOF | sudo tee /etc/yum.repos.d/cent7.repo
+[base]
+name=CentOS-$releasever - Base
+baseurl=http://mirror.centos.org/centos/7/os/$basearch/
+gpgcheck=0
+
+[updates]
+name=CentOS-$releasever - Updates
+baseurl=http://mirror.centos.org/centos/7/updates/$basearch/
+gpgcheck=0
+EOF
+
+# 적용 후 update
+sudo yum repolist all
+sudo yum update -y
 ```
 
-정상적으로 동작을 했다면, 다음과 같은 결과가 나오게 된다.
+- System & Kubernetes Configuration까지 설정했다면, 본격적으로 Kubernetes를 사용하기 위한 Package들을 설치한다. 설치하는 Package는 다음과 같다.
 
-![Alt Text][test_model_serving_result]
+1. **Kubeadm**
+2. **Kubelet**
+3. **Kubectl**
 
-### Persistant Volume Claim Case
+```bash
+# Kubernetes 설치를 위한 Version Check
+sudo yum list ==showduplicates kubeadm --disableexcludes=kubernetes
 
-위의 예제는 _Google Cloud Storage_ 를 통해서 Test를 진행한 예제였다. 만약에 _Custom Model_ 을 생성했는데, 이것이 __PVC__ 에 저장되어 있다면 InferenceService YAML file을 만들면서 storageUri의 접두어를 ```pvc://``` 로 바꾼 다음 경로는 ```pvc://${PVC_NAME}/${PATH}``` 로 설정해준 뒤에 Serving을 해주고 나머지는 그대로 수행해주면 된다. (따로 가이드하지 않는다. 정말 이거 하나만 잘 설정해주면 끝나기 때문에...)
+# Version Check에서 Release Version 문제가 발생하면 수행
+sudo su
+echo 7Server > /etc/yum/vars/releasever
+su ec2-user
 
-----------------------
+# Kubelet Kubeadm Kubectl Version에 맞춰서 설치 : 여기서는 1.21.x 버전 사용
+sudo yum install -y kubelet-1.21.1-0 kubeadm-1.21.1-0 kubectl-1.21.1-0 --disableexcludes=kubernetes
 
-# 3. Dex Auth <a name="i3"/>
-
-## Dex Auth : ID Token through REST API
-__Dex__ 란 3rd Party로부터 _OAuth Token_ 을 가져와 관리하는 인증 도구로, Kubeflow를 설치하게 되면 Dex가 설치되는데, 이를 활용해서 KServe 기반의 Model Serving이후 필요한 인증 ID Token 값을 발급받고 이를 활용하여 Serving Model에 Data Input을 수행한다.
-
-<details>
-<summary>Dex 인증을 요구하는 자원</summary>
-<div markdown="1">
-1. Kubeflow Central Dashboard (Login)
-</div>
-<div markdown="2">
-2. KFServing/KServe
-</div>
-<div markdown="3">
-3. Knative Serving
-</div>
-  
-<div markdown="4">
-4. Istio Virtual Service
-</div>
-</details>
-
-Dex 인증을 요구하는 자원들을 호출하게 되면 _'/dex/auth'_ 로 Redirect 되면서 인증을 요구하는데, 이에 대한 해결 방법으로는 __2__ 가지가 있다.
-- 요청할 URL에 대하여 Dex 인증을 __우회__ 하는 방법
-- 사전에 인증 과정을 거쳐서 __authservice_session__ 값을 얻고, authentication 요청시 __ID Token__ 값을 전달
-  - __KFP(Kubeflow Piplines SDK)__ 를 이용한 ID Token 발급
-  - __REST API__ 를 이용한 ID Token 발급
-
-### 초기 Authentication을 거치지 않은 경우
-```'curl -v http://${HOST}:${PORT}/v2/models/${MODEL_NAME} -d ${INPUT_DATA}'``` 를 하게 되면 다음과 같은 Exception이 발생
-
-![Alt Text][first_dex_trial_screen]
-
-Authentication Issue로 인하여 Serving Model을 정상적으로 사용하지 못함 -> 해결 방안
-- Dex에 등록된 _ID/Password_ 를 전달
-- _ID Token_ 발급을 통한 Authentication 수행
-
-### REST API를 이용한 ID Token 발급
-
-ID Token 발급 과정에서 사전에 Serving 했던 _'sklearn-irisv2'_ 라는 model을 기반으로 작업 수행
-1. Ingress Host IP & Port 설정 후 URI 호출
-
-```shell
-# External IP를 할당받지 않은 경우 수행
-INGRESS_HOST=$(kubectl get po -l istio=ingressgateway -n istio-system -o jsonpath='{.items[0].status.hostIP}')
-INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].NodePort}')
-
-# URI 호출
-curl http://${INGRESS_HOST}:${INGRESS_PORT}/v2/models/sklearn-irisv2
+# Enable kubelet(Kubernetes)
+# 다 끝나고 version check 통해서 설치되었는지 확인
+sudo systemctl enable --now kubelet
+kubelet --version
+kubeadm version
+kubectl version
 ```
 
-- 결과에서 Dex auth 요청하는 _href_ 부분을 복사 (/dex/auth?client_id=...HYb1)
+- 정상적으로 버전이 나온다면 설치가 완료되었다는 것이므로, 다음으로는 Master Node와 Worker Node의 환경을 구성해준다.
 
-![Alt Text][ingress_url_call]
+- __Master Node__ (Worker Node에서는 해당 작업을 수행하지 않음)
 
-2. __REQ__ value 얻기
+```bash
+# Master Node에서 Initialization을 할 때 Endpoint는 Master Node가 설치되어 있는 Instance의 Private IP를 넣어준다.
+# 기본적으로 Kubernetes는 6443 Port를 사용한다.
+# kubeadm init을 하게 되면, Token, Certification Hash Key 값이 나옴 : 모르면 
+# kubeadm init을 하게 되면, 아래 
+# kubeadm init을 하게 되면, 
+sudo kubeadm init --control-plane-endpoint "<Master Node Private IP>:6443" --upload-certs
 
-- 결과에서 req 값을 복사해서 REQ 변수로 할당
+# (Optional) Token 값을 모를 때
+kubeadm token list
 
-![Alt Text][get_req]
+# (Optional) Certification Hash 값을 모를 때
+openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
 
-3. ID/Password를 통한 인증 수행
+# Initilization이 끝나면 Root Mode를 설정해준다.
+export KUBECONFIG=/etc/kubernetes/admin.conf
 
-```shell
-# 인증 정보 : ID/Password는 Kubeflow Central Dashboard Login 정보
-REQ=k44hx2...da3g
-LOGIN=<Dex ID Value>
-PASSWORD=<Dex Password>
-
-# 인증 : 아무런 결과 없음
-curl "http://${INGRESS_HOST}:${INGRESS_PORT}/dex/auth/local?req=${REQ}" \
--H "Content-Type: application/x-www-form-urlencoded" \
---data "login=${LOGIN}&password=${PASSWORD}"
+# 일반 사용자를 위한 Configuation Setting
+# .kube directory에 admin config file 복사
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+# config file 권한 설정
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-![Alt Text][account_and_req_auth]
-
-4. _approval_ 얻기
-
-![Alt Text][get_approval]
-
-5. __ID Token__ 값 얻기
-
-- ID Token 값을 얻으면 _반드시_ 기억하고 있어야 하며, 하루가 지나야 재발급 가능
-- ID Token 값은 _한 번_ 만 조회 가능하며, 두 번째 호출부터는 __'504 Gateway Timeout' Exception__ 이 발생
-
-![Alt Text][get_id_token_and_result]
-
-<details>
-<summary>set-cookies의 내용</summary>
-<div markdown="1">
-- authservice_session=MTY...YtfZ
-</div>
-<div markdown="2">
-- Path=/
-</div>
-<div markdown="3">
-- Expires=Thu, 21 Jul 2022 05:30:11 GMT
-</div>
-<div markdown="4">
-- Max-Age=86400
-</div>
-</details>
-
-### ID Token을 활용한 Model Data Input Test
-> Test Env 1. : Serving했던 Model Pod를 NodePort로 Expose 후 Testing
-> Test Env 2. : KServe로 Serving 후 생긴 Service에서 Model의 Cluster IP를 통한 Testing (Prerequisite : Ubuntu Image를 올린 Pod 배포)
-
-
-#### Test Env 1.
-KServe로 Serving했던 Model _Pod_ 를 __NodePort__ 로 Expose 후 Test를 진행하는데, 과정은 다음과 같다.
-
-1. Serving된 Model __Pod__ 를 __NodePort__ 로 expose
-2. 해당 Service의 _8080 NodePort_ 를 가져옴
-3. ID Token 값을 활용해 인증한 뒤에 Test
-
-```shell
-# KServe를 활용해 Model을 Serving하게 되면, Pod가 생성되는데, 해당 Pod를 NodePort로 service
-kubectl expose pod -n <Inference Namespace> <Inference Pod Name> --type=NodePort
-
-# 8080의 nodeport를 가져옴
-NODE_PORT=$(kubectl get svc -n <Inference Namespace> <Inference Pod Name> -o jsonpath='{.spec.ports[?(@.name=="port-1")].nodePort}')
-
-# 사전에 Test를 위한 input data가 있어야 함 (사진에서는 iris-input.json)
-INPUT=@./iris-input.json
-
-# Token 정보 저장 : set_cookies의 authservice_session 값
-TOKEN=MTY...YtfZ
-
-# Model Test
-curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT} http://${INGRESS_HOST}:${NODE_PORT}/v2/models/sklearn-irisv2/infer
-```
-
-- 결과(Terminal) : 정상적으로 수행되었음을 보여준다.
-
-![Alt Text][dex_auth_id_token_test_result]
-
-#### Test Env 2.
-KServe로 Serving 후 생긴 Inference의 Service에서 Model의 __Cluster IP__ 를 통한 Testing으로, 과정은 다음과 같다.
-
-1. Ubuntu Image가 올라간 임의의 Pod 생성
-2. 해당 Pod의 Shell Connection
-3. input data 샘플(iris-input.json) 생성
-4. Serving Model의 private svc Cluster IP를 가져옴
-5. ID Token 값을 활용해 인증한 뒤에 Test
-
-```shell
-# Ubuntu가 들어있는 Pod를 정의한 YAML 이름을 model-test-ubuntu라고 가정
-kubectl create -f model-test-ubuntu
-
-# 생성된 Pod의 shell connection
-kubectl exec --stdin --tty model-test-ubuntu -n ${Pod Namespace} -- /bin/bash
-
-# 임의의 경로로 이동한 뒤에 input data(iris-input.json)을 생성한 뒤 Cluster IP, Port, Token 설정 (Test에서는 80으로 함)
-CLUSTER_IP=${Served Model Private Service Cluster IP}
-CLUSTER_PORT=80
-TOKEN=${ID Token Value}
-
-# ID Token 인증 후 Testing
-curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUSTER_IP}:${CLUSTER_PORT}/v2/models/${MODEL_NAME}/infer
-```
-
-- 결과 (Terminal) : 정상적으로 수행되었음
-
-![Alt Text][dex_auth_id_token_test_result_cluster_ip]
-
-# 4. Test via Predictor Framework <a name="i4" />
-> KServe Testing을 Framework 단위로 진행한다.
-> Testing은 Kubernetes 내부를 통해서 진행하기 때문에 Cluster IP만을 사용한다.
-
-<details>
-<summary>Supporting Framework</summary>
-<div markdown="1">
-- Google Tensorflow
-</div>
-<div markdown="2">
-- Scikit-Learn
-</div>
-<div markdown="3">
-- Facebook PyTorch
-</div>
-<div markdown="4">
-- NVIDIA Triton Inference Service
-</div>
-<div markdown="4">
-- ONNX (Open Neural Network Exchange)
-</div>
-<div markdown="4">
-- XGBoost (Extreme Gradient Boosting)
-</div>
-</details>
-
-## 
+- **Worker Node** (Master Node에서는 해당 작업을 수행하지 않음)
 
 -------------------
 
 #### Reference :
-- [KServe Github](https://github.com/kserve/kserve)
-- [KServe Website](https://kserve.github.io/website)
-- [Dex 인증/우회](https://1week.tistory.com/83)
-
-[first_dex_trial_screen]:https://imgur.com/ZNxXlKY.png
-[ingress_url_call]:https://imgur.com/rMZbdp0.png
-[get_req]:https://imgur.com/jfqjoN7.png
-[account_and_req_auth]:https://imgur.com/64fCZMx.png
-[get_approval]:https://imgur.com/AZ84iwi.png
-[get_id_token_and_result]:https://imgur.com/i57E2PJ.png
-[dex_auth_id_token_test_result]:https://imgur.com/UV3hZ9M.png
-[dex_auth_id_token_test_result_cluster_ip]:https://imgur.com/fff0Uc8.png
-[check_inference_service_status]:https://imgur.com/3ZTMVhU.png
-[test_model_serving_result]:https://imgur.com/r07rpPn.png
