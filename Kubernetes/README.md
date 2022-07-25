@@ -5,8 +5,8 @@
 ### Index :
 1. [__Kubernets Installation__](#i1)
 
-# 1. Kubernetes Installation Environment <a name="i1" />
-> Kubernetes 설치 환경에 대한 간략한 서술
+# 1. Kubernetes Installation <a name="i1" />
+> Kubernetes 설치 
 
 Kubernetes에 대한 개념은 이미 알고 있다고 가정을 하고 Kubernetes 구축 환경에 대해서 작성을 한다.
 
@@ -263,6 +263,14 @@ alias k='kubectl'
 source ~/.bashrc
 ```
 
+- 모두 정상적으로 설치되었을 때 나오는 화면 :
+
+![Alt Text][kubernetes_install_success]
+
 -------------------
 
 #### Reference :
+1. [Kubernetes Documents](https://kubernetes.io/ko/docs/home/)
+
+
+[kubernetes_install_success]:https://imgur.com/APkDbp1.png
