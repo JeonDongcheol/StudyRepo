@@ -7,4 +7,4 @@
 
 ## Contents
 1. [__Kubernetes__](./Kubernetes)
-2. [__KServe/KfServing__](./KServe)
+2. [__KServe__](./KServe)
