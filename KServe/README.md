@@ -350,6 +350,7 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUS
 # 4. Test via Predictor Framework <a name="i4" />
 > KServe Testing을 Framework 단위로 진행한다.
 > Testing은 Kubernetes 내부를 통해서 진행하기 때문에 Cluster IP만을 사용한다.
+> 현재 Testing 중이라 수정이 많아질 수도 
 
 <details>
 <summary>Supporting Framework</summary>
