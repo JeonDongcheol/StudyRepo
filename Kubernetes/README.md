@@ -6,6 +6,7 @@
 ### Index :
 1. [__Kubernets Installation__](#install_k8s)
 2. [__Kubeflow Installation__](#install_kubeflow)
+3. [**Kubernetes Useful Command**](#kubernetes_useful_cmd)
 
 # 1. Kubernetes Installation <a name="install_k8s" />
 > Kubernetes 설치하는 과정을 Command Line 위주로 서술한다.
@@ -274,6 +275,14 @@ source ~/.bashrc
 
 # 2. Kubeflow Installation <a name="install_kubeflow" />
 > Kubeflow에 대한 설치 과정을 Command Line 위주로 작성한다. 아무래도 생각보다 어려운 작업이 아닌가 싶다.
+
+---------------------
+
+# 3. Kubernetes Useful Command <a name="kubernetes_useful_cmd" />
+> Kubernetes를 사용하면서 알아두면 유용한 Command를 기록해둔다.
+
+- Pod 재시작 : ```kubectl get pod -n ${NAMESPACE} ${POD_NAME} -o yaml | kubectl replace --force -f-```
+
 
 -------------------
 
