@@ -282,6 +282,7 @@ source ~/.bashrc
 > Kubernetes를 사용하면서 알아두면 유용한 Command를 기록해둔다.
 
 - Pod 재시작 : ```kubectl get pod -n ${NAMESPACE} ${POD_NAME} -o yaml | kubectl replace --force -f-```
+- Pod Log 조회 : ```kubectl logs -c ${CONTAINER_NAME} -n ${NAMESPACE} ${POD_NAME}```
 
 
 -------------------
