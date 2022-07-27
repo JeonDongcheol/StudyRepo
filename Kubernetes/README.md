@@ -285,6 +285,7 @@ source ~/.bashrc
 - Pod 재시작 : ```kubectl get pod -n ${NAMESPACE} ${POD_NAME} -o yaml | kubectl replace --force -f-```
 - Pod Log 조회 : ```kubectl logs -c ${CONTAINER_NAME} -n ${NAMESPACE} ${POD_NAME}```
 - 특정 Service Type으로 Pod 노출 : ```kubectl expose pod -n ${NAMESPACE} {POD_NAME} --type=${SERVICE_TYPE}``` (NodePort, Cluster IP, LoadBalancer)
+- Inference Service 환경설정 조회 : ```kubectl edit(describe) configmap -n ${NAMESPACE} inferenceservice-config```
 
 
 -------------------
