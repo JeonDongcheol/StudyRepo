@@ -287,6 +287,7 @@ source ~/.bashrc
 - 특정 Service Type으로 Pod 노출 : ```kubectl expose pod -n ${NAMESPACE} {POD_NAME} --type=${SERVICE_TYPE}``` (NodePort, Cluster IP, LoadBalancer)
 - Inference Service 환경설정 조회 : ```kubectl edit(describe) configmap -n ${NAMESPACE} inferenceservice-config```
 - 특정 Pod Shell Script 접속 : ```kubectl exec --stdin --tty -n ${NAMESPACE} ${POD_NAME} -- /bin/bash```
+- Kubernetes Defualt Namespace 설정 : ```kubectl config set-context --current --namespace=${NAMESPACE}```
 
 
 -------------------
