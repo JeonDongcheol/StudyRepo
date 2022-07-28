@@ -44,8 +44,19 @@ KServe Model Server에는 Control Plane과 Data Plane이 있dmau, 각 역할은 
 KServe에서 기본적으로 제공하는 Runtime Server로는 아래 표와 같다. (KServe Official Website의 내용을 최대한 이해하기 쉽게 풀어봄)
 
 | Protocol Version | Model Server | 지원하는 AI Model | Server Version | YAML Key (계속 수정 중) |
-|:---------:|---------|---------|---------|:---------:|
-| __V2__ | __Triton Inference Server__ | _Tensorflow, TorchScript, ONNX_ | (Compatibility Matrix)[https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html] | __triton__ |
+|:---------:|---------|---------|:---------:|:---------:|
+| __V2__ | Triton Inference Server | [Tensorflow, TorchScript, ONNX](https://github.com/triton-inference-server/server/blob/r21.09/docs/model_repository.md) | [Compatibility Matrix](https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html) | __triton__ |
+| | SKLearn MLServer | [Pickled Model](https://scikit-learn.org/stable/model_persistence.html) | 0.23.1 | __sklearn__ |
+| | XGBoost MLServer | [Saved Model](https://xgboost.readthedocs.io/en/latest/tutorials/saving_model.html) | 1.1.1 | __xgboost__ |
+| __V1__ | TFServing | [Tensorflow SavedModel](https://www.tensorflow.org/guide/saved_model) | [TFServing Version](https://github.com/tensorflow/serving/releases) | __tensorflow__ |
+| | TorchServe | [Eager Model/TorchScript](https://pytorch.org/docs/master/generated/torch.save.html) | 0.4.1 | pytorch |
+| | SKLearn KFServer | [Pickled Model](https://scikit-learn.org/stable/model_persistence.html) | 0.20.3 | __sklearn__ |
+| | XGBoost KFServer | [Saved Model](https://xgboost.readthedocs.io/en/latest/tutorials/saving_model.html) | 0.82 | __xgboost__ |
+| | PMML KFServer | [PMML](https://dmg.org/pmml/v4-4-1/GeneralStructure.html) | PMML4.4.1 | __pmml__ |
+| | LightGBM KFServer | [Saved LightGBM Model](https://lightgbm.readthedocs.io/en/latest/pythonapi/lightgbm.Booster.html#lightgbm.Booster.save_model) | 2.3.1 | __lightgbm__ |
+  
+##### - Custom Model Server에 대해서는 특별하게 기술하지 않는다.
+  
 
 
 
