@@ -28,15 +28,16 @@ KServe Model Server에는 Control Plane과 Data Plane이 있dmau, 각 역할은 
 2. [__Data Plane__](https://kserve.github.io/website/0.7/modelserving/data_plane/) : 특정 Model을 대상으로 하는 Request/Response 주기를 관리한다. 또한 Model Ready Status와 이상 존재 여부를 상태를 확인할 수 있는 Endpoint도 있으며, Model Metadata를 검색하기 위한 API도 제공한다. Data Plane의 요소는 다음과 같다.
 
 <details>
-<summary>KServe Data Plane Component</summary>
-<div markdown="1">
-&nbsp;&nbsp;&nbsp;&nbsp;- Predictor (Essential) : Transformer Component를 호출하는 Inference Pipline으로 작동한다.
-</div>
-<div markdown="2">
-&nbsp;&nbsp;&nbsp;&nbsp;- Transformer : Inbound Data의 Preprocess Request와 Outbound Data의 Postprocess(Response)를 실행한다.
-</div>
-<div markdown="3">
-&nbsp;&nbsp;&nbsp;&nbsp;- Explainer : AI의 설명 가능성을 제공한다. (확실하게는 개념을 모르겠다 아직...)
+  <summary>KServe Data Plane Component</summary>
+  <div markdown="1">
+  &nbsp;&nbsp;&nbsp;&nbsp;- Predictor (Essential) : Transformer Component를 호출하는 Inference Pipline으로 작동한다.
+  </div>
+  <div markdown="2">
+  &nbsp;&nbsp;&nbsp;&nbsp;- Transformer : Inbound Data의 Preprocess Request와 Outbound Data의 Postprocess(Response)를 실행한다.
+  </div>
+  <div markdown="3">
+  &nbsp;&nbsp;&nbsp;&nbsp;- Explainer : AI의 설명 가능성을 제공한다. (확실하게는 개념을 모르겠다 아직...)
+  </div>
 </details>
 
 ![Alt Text][kserve_architecture]
@@ -117,19 +118,19 @@ KServe는 기존에 학습시켜 만들어 두었던 Model을 Pulling하고 이�
 <details>
   <summary>Model Storage List</summary>
   <div markdown="1">
-    - Google Cloud Storage
+    &nbsp;&nbsp;&nbsp;&nbsp;- Google Cloud Storage
   </div>
   <div markdown="2">
-    - Amazone Web Service S3
+    &nbsp;&nbsp;&nbsp;&nbsp;- Amazone Web Service S3
   </div>
   <div markdown="3">
-    - Azure Blob Storage
+    &nbsp;&nbsp;&nbsp;&nbsp;- Azure Blob Storage
   </div>
   <div markdown="4">
-    - Local Path
+    &nbsp;&nbsp;&nbsp;&nbsp;- Local Path
   </div>
   <div markdown="5">
-    - Persistant Volume Claim (PVC)
+    &nbsp;&nbsp;&nbsp;&nbsp;- Persistant Volume Claim (PVC)
 </div>
 </details>
 
@@ -146,16 +147,16 @@ Model Serving은 위에서 언급했던 것처럼 Training이 완료된 Model을
 <details>
   <summary>Model Serving 과정</summary>
   <div markdown="1">
-    1. Model Creation (Pyton, Jupyter, Java ...)
+  &nbsp;&nbsp;&nbsp;&nbsp;1. Model Creation (Pyton, Jupyter, Java ...)
   </div>
   <div markdown="2">
-    2. Inference YAML Creation (Kubeflow Central Dashboard를 통해서도 가능)
+  &nbsp;&nbsp;&nbsp;&nbsp;2. Inference YAML Creation (Kubeflow Central Dashboard를 통해서도 가능)
   </div>
   <div markdown="3">
-    3. Inference Service Creation on Kubernetes (Basic하게는 Pod 1개, Deployment 1개, Service 4개가 생성된다. 설정에 따라 다름)
+  &nbsp;&nbsp;&nbsp;&nbsp;3. Inference Service Creation on Kubernetes (Basic하게는 Pod 1개, Deployment 1개, Service 4개가 생성된다. 설정에 따라 다름)
   </div>
   <div markdown="4">
-    4. REST API/gRPC를 기반으로 Serving Model 사용
+  &nbsp;&nbsp;&nbsp;&nbsp;4. REST API/gRPC를 기반으로 Serving Model 사용
   </div>
 </details>
 
@@ -359,20 +360,19 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d @./iris-input.json http://$
 __Dex__ 란 3rd Party로부터 _OAuth Token_ 을 가져와 관리하는 인증 도구로, Kubeflow를 설치하게 되면 Dex가 설치되는데, 이를 활용해서 KServe 기반의 Model Serving이후 필요한 인증 ID Token 값을 발급받고 이를 활용하여 Serving Model에 Data Input을 수행한다.
 
 <details>
-<summary>Dex 인증을 요구하는 자원</summary>
-<div markdown="1">
-1. Kubeflow Central Dashboard (Login)
-</div>
-<div markdown="2">
-2. KFServing/KServe
-</div>
-<div markdown="3">
-3. Knative Serving
-</div>
-  
-<div markdown="4">
-4. Istio Virtual Service
-</div>
+  <summary>Dex 인증을 요구하는 자원</summary>
+  <div markdown="1">
+  &nbsp;&nbsp;&nbsp;&nbsp;1. Kubeflow Central Dashboard (Login)
+  </div>
+  <div markdown="2">
+  &nbsp;&nbsp;&nbsp;&nbsp;2. KFServing/KServe
+  </div>
+  <div markdown="3">
+  &nbsp;&nbsp;&nbsp;&nbsp;3. Knative Serving
+  </div>
+  <div markdown="4">
+  &nbsp;&nbsp;&nbsp;&nbsp;4. Istio Virtual Service
+  </div>
 </details>
 
 Dex 인증을 요구하는 자원들을 호출하게 되면 _'/dex/auth'_ 로 Redirect 되면서 인증을 요구하는데, 이에 대한 해결 방법으로는 __2__ 가지가 있다.
@@ -442,19 +442,19 @@ curl "http://${INGRESS_HOST}:${INGRESS_PORT}/dex/auth/local?req=${REQ}" \
 ![Alt Text][get_id_token_and_result]
 
 <details>
-<summary>set-cookies의 내용</summary>
-<div markdown="1">
-- authservice_session=MTY...YtfZ
-</div>
-<div markdown="2">
-- Path=/
-</div>
-<div markdown="3">
-- Expires=Thu, 21 Jul 2022 05:30:11 GMT
-</div>
-<div markdown="4">
-- Max-Age=86400
-</div>
+  <summary>set-cookies의 내용</summary>
+  <div markdown="1">
+  &nbsp;&nbsp;&nbsp;&nbsp;- authservice_session=MTY...YtfZ
+  </div>
+  <div markdown="2">
+  &nbsp;&nbsp;&nbsp;&nbsp;- Path=/
+  </div>
+  <div markdown="3">
+  &nbsp;&nbsp;&nbsp;&nbsp;- Expires=Thu, 21 Jul 2022 05:30:11 GMT
+  </div>
+  <div markdown="4">
+  &nbsp;&nbsp;&nbsp;&nbsp;- Max-Age=86400
+  </div>
 </details>
 
 ### ID Token을 활용한 Model Data Input Test
