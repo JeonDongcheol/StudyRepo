@@ -65,7 +65,7 @@ KServe에서 기본적으로 제공하는 Runtime Server로는 아래 표와 같
 
 # 2. Model Serving <a name="model_serving" />
 
-KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test하는 것까지 진행하며, Test는 Kubernetes 같은 Container 안에서 배포하는 것을 가정하여, Ubuntu Image 기반의 Test Pod를 생성하고 그 안에서 __Cluster IP__를 통해 API를 호출한다. Test는 ScikitLearn의 Iris 분류 Model을 기반으로 진행하였다.
+KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test하는 것까지 진행하며, Test는 Kubernetes 같은 Container 안에서 배포하는 것을 가정하여, Ubuntu Image 기반의 Test Pod를 생성하고 그 안에서 __Cluster IP__ 를 통해 API를 호출한다. Test는 ScikitLearn의 Iris 분류 Model을 기반으로 진행하였다.
 
 <details>
 <summary>Model Serving 과정</summary>
