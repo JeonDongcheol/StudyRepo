@@ -44,7 +44,7 @@ KServe Model Server에는 Control Plane과 Data Plane이 있dmau, 각 역할은 
 ### Supporting Runtime Server
 > KServe에서 지원하는 Runtime Server를 안내하는데, 기본적으로 _KFServer_를 사용하고, V2 Data Plane은 작업 중이라 일부만 지원한다.
 
-KServe에서 기본적으로 제공하는 Runtime Server로는 아래 표와 같다. (KServe Official Website의 내용을 최대한 이해하기 쉽게 풀어봄)
+KServe에서 기본적으로 제공하는 Runtime Server로는 아래 표와 같다. (KServe Official Website의 내용에서 최대한 필요한 내용만 )
 
 | Protocol Version | Model Server | 지원하는 AI Model | Server Version | YAML Key (계속 수정 중) |
 |:---------:|---------|---------|:---------:|:---------:|
