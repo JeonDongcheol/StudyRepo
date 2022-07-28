@@ -11,9 +11,44 @@
 # 1. What is KServe? <a name="about_kserve" />
 > KServe에 대한 개념을 간략하게만 설명
 
-KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트이다. 
+KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트이다. 여러 ML Platform 회사들이 협업하여 Kubernetes의 Open Source Cloud Native Model Server로 개발했으며, 쉽게 말해서 여러 Framework들 및 MLServer 들에서 지원하는 _AI Model Serving_ 역할을 수행한다고 보면 된다. 참고로 Model Serving의 개념을 대략적으로 설명하자면, 학습된 Model을 만들고 난 후 여기서 끝내는 것이 아니라 이를 활용하여 서비스화 하여 실제 Data Input을 받고 원하는 Output을 낼 수 있어야 한다. 이것을 __REST API__ 혹은 __gRPC__ 를 기반으로 동작시킨다. 예를 들자면, 강아지&고양이 분류 학습 모델을 만들었을 때 이를 Serving하여 실제 내가 찍은 강아지 사진을 Input하고 이 사진을 강아지라고 Output을 내는 것이라고 보면 된다.
 
-\* Ref) Inference는 Machine Learning에서 학습된 Model을 올려서 실 데이터들을 입력 받아서 실제 output을 내는 것을 말한다고 보면 된다. 예를 들자면, 학습을 통해 강아지 고양이 분류 모델이 나오게 되면 이것을 Serving함으로써 Client가 새로운 Data를 Input하게 되면 그에 대한 output을 내줄 수 있다. (사실상 서비스로 배포하는 것)
+기존의 Kubernetes 배포 또는 Scale-to-Zero를 지원하는 Serverless로 배포할 수 있는데, 여기서 Auto-Scale Up & Down 기능을 갖춘 Serverless용 _KNative Serving_ 을 활용한다. 또한 __Istio__ 는 Model Service Enpoint를 API Client에게 공개하기 위한 _Ingress_ 로 활용한다.
+
+![Alt Text][kserve_structure]
+
+### KServe Architecture
+
+KServe Model Server에는 Control Plane과 Data Plane이 있dmau, 각 역할은 다음과 같다.
+
+1. [__Control Plane__](https://kserve.github.io/website/0.8/modelserving/control_plane/) : Inference를 담당하는 Custom Resource를 관리 및 조정하는데, Serverless Mode에서는 KNative Resource와 연계하여 Auto-Scale을 관리한다. KServe Control Plane 핵심에는 _Inference Service Life Cycle_ 을 관리하는 __KServe Controller__ 가 있다. _Service, Ingress Resource, Model Server Container, Request/Response Logging을 위한 Model Agent Container, Batch & Model Storage에서 Model Pulling_ 업무 등을 담당한다.
+2. [__Data Plane__](https://kserve.github.io/website/0.7/modelserving/data_plane/) : 특정 Model을 대상으로 하는 Request/Response 주기를 관리한다. 또한 Model Ready Status와 이상 존재 여부를 상태를 확인할 수 있는 Endpoint도 있으며, Model Metadata를 검색하기 위한 API도 제공한다. Data Plane의 요소는 다음과 같다.
+
+<details>
+<summary>KServe Data Plane Component</summary>
+<div markdown="1">
+&nbsp;&nbsp;&nbsp;&nbsp;- Predictor (Essential) : Transformer Component를 호출하는 Inference Pipline으로 작동한다.
+</div>
+<div markdown="2">
+&nbsp;&nbsp;&nbsp;&nbsp;- Transformer : Inbound Data의 Preprocess Request와 Outbound Data의 Postprocess(Response)를 실행한다.
+</div>
+<div markdown="3">
+&nbsp;&nbsp;&nbsp;&nbsp;- Explainer : AI의 설명 가능성을 제공한다. (확실하게는 개념을 모르겠다 아직...)
+</details>
+
+![Alt Text][kserve_architecture]
+
+### Supporting Runtime Server
+> KServe에서 지원하는 Runtime Server를 안내하는데, 기본적으로 _KFServer_를 사용하고, V2 Data Plane은 작업 중이라 일부만 지원한다.
+
+KServe에서 기본적으로 제공하는 Runtime Server로는 아래 표와 같다. (KServe Official Website의 내용을 최대한 이해하기 쉽게 풀어봄)
+
+| Protocol Version | Model Server | 지원하는 AI Model | Server Version | YAML Key (계속 수정 중) |
+|:---------:|---------|---------|---------|:---------:|
+| __V2__ | __Triton Inference Server__ | _Tensorflow, TorchScript, ONNX_ | (Compatibility Matrix)[https://docs.nvidia.com/deeplearning/frameworks/support-matrix/index.html] | __triton__ |
+
+
+
 
 ------------------
 
@@ -393,3 +428,5 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUS
 [dex_auth_id_token_test_result_cluster_ip]:https://imgur.com/fff0Uc8.png
 [check_inference_service_status]:https://imgur.com/3ZTMVhU.png
 [test_model_serving_result]:https://imgur.com/r07rpPn.png
+[kserve_structure]:https://imgur.com/NU2oBQ8.png
+[kserve_architecture]:https://imgur.com/undefined.png
