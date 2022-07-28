@@ -14,7 +14,9 @@
 # 1. What is KServe? <a name="about_kserve" />
 > KServe에 대한 개념을 조금이라도 잡을 수 있게 설명을 적어둔다.
 
-KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트이다. 여러 ML Platform 회사들이 협업하여 Kubernetes의 Open Source Cloud Native Model Server로 개발했으며, 쉽게 말해서 여러 Framework들 및 MLServer 들에서 지원하는 _AI Model Serving_ 역할을 수행한다고 보면 된다. 참고로 Model Serving의 개념을 대략적으로 설명하자면, 학습된 Model을 만들고 난 후 여기서 끝내는 것이 아니라 이를 활용하여 서비스화 하여 실제 Data Input을 받고 원하는 Output을 낼 수 있어야 한다. 이것을 __REST API__ 혹은 __gRPC__ 를 기반으로 동작시킨다. 예를 들자면, 강아지&고양이 분류 학습 모델을 만들었을 때 이를 Serving하여 실제 내가 찍은 강아지 사진을 Input하고 이 사진을 강아지라고 Output을 내는 것이라고 보면 된다.
+KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 이름이며, 임의의 Framework(e.g. Tensorflow, ScikitLearn, Pytorch...)에서 나온 Machine Learning Model을 Serving하기 위한 컴포넌트다. 여러 ML Platform 회사들이 협업하여 Kubernetes의 Open Source Cloud Native Model Server로 개발했으며, 쉽게 말해서 여러 Framework들 및 MLServer 들에서 지원하는 _AI Model Serving_ 역할을 수행한다고 보면 된다.
+
+참고로 Model Serving의 개념을 대략적으로 설명하자면, 학습된 Model을 만들고 난 후 여기서 끝내는 것이 아니라 이를 활용하여 서비스화 하여 실제 Data Input을 받고 원하는 Output을 낼 수 있어야 한다. 이것을 __REST API__ 혹은 __gRPC__ 를 기반으로 동작시킨다. 예를 들자면, 강아지&고양이 분류 학습 모델을 만들었을 때 이를 Serving하여 실제 내가 찍은 강아지 사진을 Input하고 이 사진을 강아지라고 Output을 내는 것이라고 보면 된다.
 
 기존의 Kubernetes 배포 또는 Scale-to-Zero를 지원하는 Serverless로 배포할 수 있는데, 여기서 Auto-Scale Up & Down 기능을 갖춘 Serverless용 _KNative Serving_ 을 활용한다. 또한 __Istio__ 는 Model Service Enpoint를 API Client에게 공개하기 위한 _Ingress_ 로 활용한다.
 
