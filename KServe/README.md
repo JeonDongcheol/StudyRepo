@@ -1,10 +1,10 @@
 # KServe
 
-> 공부한 내용 & 실습들을 정리
+> KServe와 관련해서 공부 & 실습한 내용들을 정리했다. KServe Version 0.7을 기준으로 작성했으며, 어디까지나 내 기준의 환경에서 작업한 것이기 때문에 참조 정도만 하면 좋을 듯 하다.
 
-> Index를 통해서 필요한 부분으로 이동할 수 있도록 해두었으니 참조
+> AWS EC2 Instance 위에서 실습했으며, OS Image는 CentOS 7 환경에서 이루어졌다.
 
-> 나름 열심히 적어보았다...
+> Index를 통해서 원하는 부분을 찾아서 이동하자... 나름 열심히 적었지만 부족한 부분도 많다고 계속 느끼는 중이다... (끝도 없이 뭔가가 튀어나옴)
 
 ### Index :
 1. [__What is KServe?__](#about_kserve)
@@ -60,31 +60,154 @@ KServe에서 기본적으로 제공하는 Runtime Server로는 아래 표와 같
   
 ##### - Custom Model Server에 대해서는 특별하게 기술하지 않는다.
   
+### Data Plane Protocol
+> KServe Data Plane Protocol의 Version에 따른 내용을 기술. Explainer에 대한 내용을 아직 명확하지 않기에 작성하지 않음
+  
+- V1 Protocol
+  
+| API Usage | Method | Path (Endpoint) | Request | Response |
+|------|:------:|-------|-------|------|
+| Read Model's Health | __GET__ | ```/v1/models/${MODEL_NAME}``` | | { "name": String, "ready": Boolean } |
+| Read Model's List | __GET__ | ```/v1/models``` | | |
+| Predict | __POST__ | ```/v1/models/${MODEL_NAME}:predict``` | { "instances" : [ Input Tensor ] } | { "predictions" : [ Output ] } |
 
+__Predict__ 의 경우 Tensorflow Model을 제외한 모든 Inference Model은 Input이 [Tensorflow V1 HTTP API](https://www.tensorflow.org/tfx/serving/api_rest#predict_api) Format을 따른다.
 
+Tensorflow Model은 ```{ "signature_name" : String, "inputs"("instances"도 가능) : [ Input Tensor] }``` 형태의 Request Input Format을 따른다.
+  
+- V2 Protocol
 
+V2 Protocol은 현재 작업 중인 것(22.07.28 기준)으로 알고 있으며, 현재 나온 Model에 대해서는 다음과 같은 URL을 지원한다.
+  
+| API Usage | Method | Path (Endpoint) | Request | Response |
+|---------|:---------:|------------|----------|----------|
+| Read Model's Health | __GET__ | ```/v2/models/${MODEL_NAME}/ready``` | | ```Empty Result``` (Error Code에 따른 상태 체크) |
+| Read Model's List | __GET__ | ```/v2/models``` | | |
+| Read Model's Metadata | __GET__ | ```/v2/models/${MODEL_NAME}``` | | ```{ "name" : String, "version" : [ ], "platform" : String, "inputs" : [ ], "outputs" : [ ] }``` |
+| Predict | __POST__ | ```/v2/models/${MODEL_NAME}/infer``` | ```{ "id" : String, "parameters" : [ ], "inputs" : [{ "name" : String, "shape" : [ ], "datatype" : String, "parameters" : [ ], "data" : [ Input Tensor ] }], "outputs" : [ { "name" : String, "parameters" : [ ] } ] }``` | ```{ "model_name": String, "model_version" : String, "id" : String, "parameters" : String, "outputs" : [{ "name" : String", "shape":[ ], "datatype" : "String", "parameters" : String, "data" : [ ] }]}``` |
+  
+__Model's Health__ 의 경우에는 _Server Live status, Server Ready status, Model Ready status_ 를 나타내는데, 특별한 Response Body가 있는 것이 아닌 REST API 호출했을 때 Status Code가 __200__ 인 경우 정상적으로 동작 가능하다는 것이며, Status가 __4XX__ 인 경우에는 정상적으로 동작하지 않는다는 것이므로 Error Message를 참조해야 한다.
+  
+__Model Metadata__ 의 경우에는 _Model Name, Model Version, Platform, Input&Output Format_ 등의 정보를 포함하고 있다.
+  
+__Inference__ 의 경우에는 Serving Model를 사용하기 위해 REST API를 통해서 실제 Data를 Input하고 결과 값을 반환 받는다. Request Body에서 __"inputs"__ Field만큼은 __Essential__ 로, 반드시 들어가야 한다. (나머지는 설정에 따라 Optional)
+  
+Tensor Data의 Type (Prediction Input에서 _'datatype'_ field)은 다음과 같다. (추후 V2 Data Input 과정에서 아래의 Data Type 중 하나를 골라서 선언해주면 된다.)
+  
+| Data Type | Size (Bytes) |
+|-----------|:------:|
+| BOOL | 1 |
+| UINT8 | 1 |
+| UINT16 | 2 |
+| UINT32 | 4 |
+| UINT64 | 8 |
+| INT8 | 1 |
+| INT16 | 2 |
+| INT32 | 4 |
+| INT64 | 8 |
+| FP16 | 2 |
+| FP32 | 4 |
+| FP64 | 8 |
+| BYTES | Variable (max 2^32) |
+  
+- Model Storage
+  
+KServe는 기존에 학습시켜 만들어 두었던 Model을 Pulling하고 이를 ```/mnt/models``` (Default, 설정에 따라 다름)에 저장해두고 이를 Serving하는 형식이기 때문에 Model Storage에 대한 정보를 반드시 담아야 한다. Model Storage의 종류로는 다음과 같다.
+  
+<details>
+  <summary>Model Storage List</summary>
+  <div markdown="1">
+    - Google Cloud Storage
+  </div>
+  <div markdown="2">
+    - Amazone Web Service S3
+  </div>
+  <div markdown="3">
+    - Azure Blob Storage
+  </div>
+  <div markdown="4">
+    - Local Path
+  </div>
+  <div markdown="5">
+    - Persistant Volume Claim (PVC)
+</div>
+</details>
+
+_Google Cloud Storage_ 와 _AWS S3_ Case에는 사용자 인증을 환경 변수에 추가해야한다. **(이에 대해서는 추후 작성)**
 
 ------------------
 
 # 2. Model Serving <a name="model_serving" />
 
 KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test하는 것까지 진행하며, Test는 Kubernetes 같은 Container 안에서 배포하는 것을 가정하여, Ubuntu Image 기반의 Test Pod를 생성하고 그 안에서 __Cluster IP__ 를 통해 API를 호출한다. Test는 ScikitLearn의 Iris 분류 Model을 기반으로 진행하였다.
+  
+Model Serving은 위에서 언급했던 것처럼 Training이 완료된 Model을 사용자들이 사용할 수 있도록 REST API / gRPC(여기서는 사용하지 않음) 형태로 제공하는 작업이다. KServe에서 Model을 Serving하는 방법은 다양하겠지만 전반적인 Process는 다음과 같다.
 
 <details>
-<summary>Model Serving 과정</summary>
-<div markdown="1">
-1. Model 생성 (Python, Jupyter 등등 이용해서 Serving할 Model 생성)
-</div>
-<div markdown="2">
-2. InferenceService YAML file 작성 및 생성
-</div>
-<div markdown="3">
-3. Input Data, REST API 정보 가져오기
-</div>
-<div markdown="4">
-4. Serving한 Model 사용
-</div>
+  <summary>Model Serving 과정</summary>
+  <div markdown="1">
+    1. Model Creation (Pyton, Jupyter, Java ...)
+  </div>
+  <div markdown="2">
+    2. Inference YAML Creation (Kubeflow Central Dashboard를 통해서도 가능)
+  </div>
+  <div markdown="3">
+    3. Inference Service Creation on Kubernetes (Basic하게는 Pod 1개, Deployment 1개, Service 4개가 생성된다. 설정에 따라 다름)
+  </div>
+  <div markdown="4">
+    4. REST API/gRPC를 기반으로 Serving Model 사용
+  </div>
 </details>
+
+Serving을 위한 YAML file 구조는 다양하지만 Base Structure는 다음과 같다.
+  
+```yaml
+apiVersion: ${KServe API Version}
+kind: "InferenceService"
+metadata:
+  name: ${Inference Service Name}
+spec:
+  predictor:
+    ${Predictor Framework Name}:
+      storageUri: ${MODEL_STORAGE_PATH}
+```
+  
+해당 구조는 가장 기본적인 구조로 해당 값들만 넣어주어도 Inference Service가 생성되긴 한다. (물론 정상적인 값들을 넣었을 때만...)
+  
+추가적으로 작업하면서 필요한 항목들에 대해서 작성해서 알려주자면,
+  
+```yaml
+apiVersion: ${KServe API Version}
+kind: "InferenceService"
+metadata:
+  name: ${Inference Service Name}
+  namespace: ${NAMESPACE}
+  annotations:
+    # istio injection을 false로 설정해야지 정상적으로 통신을 한다. 
+    # 나는 Serving하는 Model에 대해서는 전부 해당 값을 넣었다.
+    # 왜 그런 것인지는 잘 모르겠으나, 추후 보충 설명할 예정
+    sidecar.istio.io/inject: "false"
+spec:
+  predictor:
+    ${Predictor Framework Name}:
+      storageUri: ${MODEL_STORAGE_PATH}
+      # Protocol Version은 Data Plane이 V1, V2 둘 다 있는 Case에서 맞춰서 사용
+      # 내가 알기로는 Triton Inference Server, Scikit Learn, XGBoost 등이 V2 Protocol도 사용할 수 있는 것으로 알고 있음
+      protocolVersion: ${PROTOCOL_VERSION}
+      # Runtime Version은 기본적으로 Configmap의 inferenceservice-config에 Default Model Server Image가 포함되어 있음
+      # 그 외의 다른 Runtime Version을 사용하고 싶다면 해당 Field를 사용하여 정의해준다.
+      runtimeVersion: ${RUNTIME_VERSION}
+      # 자원 사용에 대한 정의 : Inference 과정에서 요구되는 자원과 한계 자원에 대한 정의를 내린다.
+      # 아직 정확하게는 사용해보지 않아서 추가적인 공부가 필요함
+      # 따로 정의를 해주지 않는다면 Default로 CPU 1, Memory 2Gi 값이 들어감
+      resources:
+        limits:
+          cpu: ${LIMITS_CPU}
+          memory: ${LIMITS_MEMORY}
+        requests:
+          cpu: ${REQUESTS_CPU}
+          memory: ${REQUESTS_MEMORY}
+```
 
 ## Model 생성
   
@@ -402,6 +525,7 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUS
 - [KServe Github](https://github.com/kserve/kserve)
 - [KServe Website](https://kserve.github.io/website)
 - [Dex 인증/우회](https://1week.tistory.com/83)
+- [KServe Concept 참조](https://devocean.sk.com/blog/techBoardDetail.do?ID=163739)
 
 [first_dex_trial_screen]:https://imgur.com/ZNxXlKY.png
 [ingress_url_call]:https://imgur.com/rMZbdp0.png
