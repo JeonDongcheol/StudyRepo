@@ -9,7 +9,7 @@
 ### Index :
 1. [__What is KServe?__](#about_kserve)
 2. [__Model Serving__](#model_serving)
-3. [__Dex Auth__](#dex_auth)
+3. [__KServe Dex Authentication__](#dex_auth)
 
 # 1. What is KServe? <a name="about_kserve" />
 > KServe에 대한 개념을 조금이라도 잡을 수 있게 설명을 적어둔다.
@@ -356,7 +356,7 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d @./iris-input.json http://$
 
 ----------------------
 
-# 3. Dex Auth <a name="dex_auth"/>
+# 3. KServe Dex Authentication <a name="dex_auth"/>
 
 ## Dex Auth : ID Token through REST API
 __Dex__ 란 3rd Party로부터 _OAuth Token_ 을 가져와 관리하는 인증 도구로, Kubeflow를 설치하게 되면 Dex가 설치되는데, 이를 활용해서 KServe 기반의 Model Serving이후 필요한 인증 ID Token 값을 발급받고 이를 활용하여 Serving Model에 Data Input을 수행한다.
