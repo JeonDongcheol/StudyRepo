@@ -6,6 +6,7 @@
 ### Index :
 1. [__Kubernets Installation__](#install_k8s)
 2. [__Kubeflow Installation__](#install_kubeflow)
+3. [__Kubernetes Resource__](#k8s_resource)
 
 Ref. [**Kubernetes Useful Command**](#kubernetes_useful_cmd)
 
@@ -290,8 +291,52 @@ source ~/.bashrc
 - Kubernetes Defualt Namespace 설정 : ```kubectl config set-context --current --namespace=${NAMESPACE}```
 - Persistant Volume Claim(PVC) State가 'Terminating' 상태로 남아있을 때 삭제하는 방법 : ```kubectl patch pvc -n ${NAMESPACE} ${PVC_NAME} -p '{"metadata": {"finalizers": null}}'```
 
-
 -------------------
+
+# 3. Kubernetes Resource <a name="k8s_resource" />
+> Kubernetes에 대한 Resource를 간단하게 안내
+
+Kubernetes에서는 __Pod__ 를 설정하면서 Container에 필요한 Resource를 지정할 수가 있는데, 기본적으로 __CPU__ 와 __Memory(RAM)__ 를 지정할 수 있다. Resource 할당은 2개의 분류로 나누어서 할 수 있는데, 다음과 같다.
+
+- Requests : Pod를 실행시키기 위한 Minimum Resource
+- Limits : Pod가 사용할 수 있는 Maximum Resource
+
+### Resource 단위
+
+- CPU : CPU 단위로 측정이 되는데, 기본적으로 __m__ 을 사용하여 "Milli-core" 단위로 표현을 한다. 즉 ```100m``` 은 ```100 milli-core```를 나타내며, 이는 1 CPU 기준 0.1에 해당한다. CPU 단위로도 표현할 수 있지만, 주로 Detail Control을 위해 milli-core 단위로 많이 표기한다.
+- Memory(RAM) : Memory는 Byte 단위로 측정이 되는데, ```E, P, T, G, M, k``` 와 같은 수량 접미사를 사용할 수도 있고, ```Ei, Pi, Ti, Gi, Mi, Ki``` 와 같은 2의 거듭제곱 형태로도 사용할 수 있다.
+
+> 여기서 대소문자의 구분을 명확하게 해줄 수 있도록 한다.
+
+YAML 파일에서 어떻게 표현이 되는지 Inference CRD를 기반으로 간단하게 나타내보았다.
+
+```yaml
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    sidecar.istio.io/inject: "false"
+  name: volume-test
+  namespace: kubeflow-user-example-com
+spec:
+  predictor:
+    sklearn:
+      protocolVersion: v2
+      resources:
+        limits:
+          cpu: 750m
+          memory: 1Gi
+        requests:
+          cpu: 500m
+          memory: 2Gi
+      storageUri: pvc://test-volume/model/model.joblib
+```
+
+- Overcommit : Node 내의 Container 모든 Resource의 __Limit__ 합계가 Node 전체 Resource의 양을 초과한 상태로, Kubernetes는 Overcommit을 허용하는데, 보통 Node가 _Scale-up _ 되어지거나, Pod가 삭제되고 다시 생성된다. 이때 Pod가 삭제되는 순서는 Resource 요청을 _가장 많이 초과한_ Pod부터 삭제된다.
+
+#### Resource 부분은 배워갈 때마다 하나씩 추가하도록 한다.
+
+---------------------------
 
 #### Reference :
 1. [Kubernetes Documents](https://kubernetes.io/ko/docs/home/)
