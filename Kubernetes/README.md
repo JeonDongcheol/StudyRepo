@@ -278,18 +278,7 @@ source ~/.bashrc
 # 2. Kubeflow Installation <a name="install_kubeflow" />
 > Kubeflow에 대한 설치 과정을 Command Line 위주로 작성한다. 아무래도 생각보다 어려운 작업이 아닌가 싶다.
 
----------------------
 
-# Ref. Kubernetes Useful Command <a name="kubernetes_useful_cmd" />
-> Kubernetes를 사용하면서 알아두면 유용한 Command를 기록해둔다.
-
-- Pod 재시작 : ```kubectl get pod -n ${NAMESPACE} ${POD_NAME} -o yaml | kubectl replace --force -f-```
-- Pod Log 조회 : ```kubectl logs -c ${CONTAINER_NAME} -n ${NAMESPACE} ${POD_NAME}```
-- 특정 Service Type으로 Pod 노출 : ```kubectl expose pod -n ${NAMESPACE} {POD_NAME} --type=${SERVICE_TYPE}``` (NodePort, Cluster IP, LoadBalancer)
-- Inference Service 환경설정 조회 : ```kubectl edit(describe) configmap -n ${NAMESPACE} inferenceservice-config```
-- 특정 Pod Shell Script 접속 : ```kubectl exec --stdin --tty -n ${NAMESPACE} ${POD_NAME} -- /bin/bash```
-- Kubernetes Defualt Namespace 설정 : ```kubectl config set-context --current --namespace=${NAMESPACE}```
-- Persistant Volume Claim(PVC) State가 'Terminating' 상태로 남아있을 때 삭제하는 방법 : ```kubectl patch pvc -n ${NAMESPACE} ${PVC_NAME} -p '{"metadata": {"finalizers": null}}'```
 
 -------------------
 
@@ -336,7 +325,18 @@ spec:
 
 #### Resource 부분은 배워갈 때마다 하나씩 추가하도록 한다.
 
----------------------------
+---------------------
+
+# Ref. Kubernetes Useful Command <a name="kubernetes_useful_cmd" />
+> Kubernetes를 사용하면서 알아두면 유용한 Command를 기록해둔다.
+
+- Pod 재시작 : ```kubectl get pod -n ${NAMESPACE} ${POD_NAME} -o yaml | kubectl replace --force -f-```
+- Pod Log 조회 : ```kubectl logs -c ${CONTAINER_NAME} -n ${NAMESPACE} ${POD_NAME}```
+- 특정 Service Type으로 Pod 노출 : ```kubectl expose pod -n ${NAMESPACE} {POD_NAME} --type=${SERVICE_TYPE}``` (NodePort, Cluster IP, LoadBalancer)
+- Inference Service 환경설정 조회 : ```kubectl edit(describe) configmap -n ${NAMESPACE} inferenceservice-config```
+- 특정 Pod Shell Script 접속 : ```kubectl exec --stdin --tty -n ${NAMESPACE} ${POD_NAME} -- /bin/bash```
+- Kubernetes Defualt Namespace 설정 : ```kubectl config set-context --current --namespace=${NAMESPACE}```
+- Persistant Volume Claim(PVC) State가 'Terminating' 상태로 남아있을 때 삭제하는 방법 : ```kubectl patch pvc -n ${NAMESPACE} ${PVC_NAME} -p '{"metadata": {"finalizers": null}}'```
 
 #### Reference :
 1. [Kubernetes Documents](https://kubernetes.io/ko/docs/home/)
