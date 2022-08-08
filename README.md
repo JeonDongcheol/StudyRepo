@@ -3,7 +3,7 @@
 
 > 서투르다보니 다소 틀린 부분도 많은데 Feedback은 얼마든 환영
 
-> 22.07.28(Thur) KServe : What is KServe? 작업 & Model Serving Edit
+> 22.08.97(Mon) Markdown 
 
 ## Contents
 1. [__Kubernetes__](./Kubernetes)
