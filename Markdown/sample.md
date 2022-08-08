@@ -32,3 +32,5 @@ Horizon
 |Table|Looks|Like|This|
 
 **This is Emphasize Font** and *This is Italic Font*
+
+[Link Like This : Go to NAVER](http://naver.com)
