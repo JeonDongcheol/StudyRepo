@@ -75,6 +75,24 @@ _Italic Font_
     ...
 ```
 
+- Link : HyperLink 삽입
+
+```
+1. [Link Name](URL)
+2. [Link Name](URL "Description")
+3. [Link Name][tag]
+
+[tag]: URL "Description"
+```
+
+- Image : [Imgur](https://imgur.com/) 를 통해서 Image Upload를 사용했는데, 다음과 같다.
+
+```
+![Alt Text][Image Name]
+
+[Image Name]:http://~~.png
+```
+
 - Code Block : Code를 넣을 수 있는 부분으로 언어에 맞게 Code 색을 변환해주기도 한다. (``` 사용)
 
 ```python
@@ -97,3 +115,23 @@ Code Block에서 지원하는 언어 목록
 |HTML, XML|html|Python|python|
 |HTTP|http|Ruby|ruby|
 |Ini|ini|SQL|sql|
+
+- Table : 표를 만드는 Format
+
+```
+|Title1|Title2|
+|------|------|
+|Content|Content|
+
+- 왼쪽 정렬 : |:-----|
+- 오른쪽 정렬 : |------:|
+- 가운데 정렬 : |:------:|
+```
+
+- 수평선
+
+```
+------------ -> 이게 그냥 수평선
+```
+
+## 이 외에도 다양한 문법들은 HTML을 기반으로 동작을 한다고 보면 된다.
