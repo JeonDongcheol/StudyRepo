@@ -1,6 +1,8 @@
 import tensorflow as tf
 from matplotlib import pyplot as plt
 import numpy as np
+# Preprocessing Module Import
+from data_preprocessing import data_preprocess
 
 # Tensorflow + MobileNet
 # Directory 형태로 Model을 만드는데 '${Model Name}/${Nubmer}/' 안에 만들어진 Model을 저장
@@ -13,11 +15,7 @@ file = tf.keras.utils.get_file(
 )
 
 # Data Preprocessing
-img = tf.keras.preprocessing.image.load_img(file, target_size=[224, 224])
-plt.imshow(img)
-plt.axis('off')
-x = tf.keras.preprocessing.image.img_to_array(img)
-x = tf.keras.applications.mobilenet.preprocess_input(x[tf.newaxis,...])
+x = data_preprocess(file)
 
 # Label Setting
 labels_path = tf.keras.utils.get_file('ImageNetLabels.txt','https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt')
@@ -29,7 +27,5 @@ result_before_save = pretrained_model(x)
 
 decoded = imagenet_labels[np.argsort(result_before_save)[0,::-1][:5]+1]
 
-print("저장 전 결과:\n", decoded)
-
 # Model Save
-tf.saved_model.save(pretrained_model, "mobilenet/1")
+tf.saved_model.save(pretrained_model, "saved_model/1")
