@@ -46,6 +46,7 @@ response = requests.post(url, data=data, headers=HEADER)
 class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
 # Image 1~10까지의 Prediction Result에 대해 Classification 후 출력
+# 정답은 Image 저장되어 있는 곳의 'label.txt' 를 
 print("=============== Classification Result ===============")
 for i in range(0, len(response.json()["predictions"])):
     # Softmax로 Predict Value 변환
