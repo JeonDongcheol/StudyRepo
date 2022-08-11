@@ -1,0 +1,21 @@
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  annotations:
+    sidecar.istio.io/inject: "false"
+  name: "mobilenet"
+  namespace: "kubeflow-user-example-com"
+spec:
+  predictor:
+    # Serving Engine : Tensorflow
+    tensorflow:
+      # PVC 기반의 Storage URI 설정
+      storageUri: "pvc://dc-test-volume/mobilenet_tf/mobilenet"
+      # Resource 할당은 상황에 맞게 선언
+      resources:
+        limits:
+          cpu: "500m"
+          memory: "1Gi"
+        requests:
+          cpu: "500m"
+          memory: "1Gi"
