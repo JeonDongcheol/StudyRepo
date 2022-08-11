@@ -8,7 +8,7 @@
 
 ### Index :
 1. [__What is KServe?__](#about_kserve)
-2. [__Model Serving PVC__](#model_serving_pvc)
+2. [__Model Serving Using PVC__](#model_serving_pvc)
 3. [__KServe Dex Authentication__](#dex_auth)
 
 # 1. What is KServe? <a name="about_kserve" />
@@ -140,7 +140,7 @@ _Google Cloud Storage_ 와 _AWS S3_ Case에는 사용자 인증을 환경 변수
 
 ------------------
 
-# 2. Model Serving <a name="model_serving_pvc" />
+# 2. Model Serving Using PVC <a name="model_serving_pvc" />
 > Google Cloud Storage를 활용한 것이 아닌 따로 학습시킨 Model을 PVC에 저장하고 이를 Serving하는 부분을 안내한다.
 
 KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test까지 하는 것을 진행하는데, Test는 Kubernetes 안의 Container 안에서 배포하는 것을 가정하고 진행한다. Tensorflow의 홈페이지에 나와있는 Image Classification의 [__Mobile Net__](https://www.tensorflow.org/guide/saved_model) 을 사용해서 학습을 하고 Model을 PVC에서 불러온다.
