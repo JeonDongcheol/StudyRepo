@@ -8,7 +8,7 @@
 
 ### Index :
 1. [__What is KServe?__](#about_kserve)
-2. [__Model Serving__](#model_serving)
+2. [__Model Serving PVC__](#model_serving_pvc)
 3. [__KServe Dex Authentication__](#dex_auth)
 
 # 1. What is KServe? <a name="about_kserve" />
@@ -24,7 +24,7 @@ KServe는 Kubeflow의 _KFServing_ 가 독립된 컴포넌트 형태로 나온 �
 
 ### KServe Architecture
 
-KServe Model Server에는 Control Plane과 Data Plane이 있dmau, 각 역할은 다음과 같다.
+KServe Model Server에는 Control Plane과 Data Plane이 있으며, 각 역할은 다음과 같다.
 
 1. [__Control Plane__](https://kserve.github.io/website/0.8/modelserving/control_plane/) : Inference를 담당하는 Custom Resource를 관리 및 조정하는데, Serverless Mode에서는 KNative Resource와 연계하여 Auto-Scale을 관리한다. KServe Control Plane 핵심에는 _Inference Service Life Cycle_ 을 관리하는 __KServe Controller__ 가 있다. _Service, Ingress Resource, Model Server Container, Request/Response Logging을 위한 Model Agent Container, Batch & Model Storage에서 Model Pulling_ 업무 등을 담당한다.
 2. [__Data Plane__](https://kserve.github.io/website/0.7/modelserving/data_plane/) : 특정 Model을 대상으로 하는 Request/Response 주기를 관리한다. 또한 Model Ready Status와 이상 존재 여부를 상태를 확인할 수 있는 Endpoint도 있으며, Model Metadata를 검색하기 위한 API도 제공한다. Data Plane의 요소는 다음과 같다.
@@ -140,11 +140,12 @@ _Google Cloud Storage_ 와 _AWS S3_ Case에는 사용자 인증을 환경 변수
 
 ------------------
 
-# 2. Model Serving <a name="model_serving" />
+# 2. Model Serving <a name="model_serving_pvc" />
+> Google Cloud Storage를 활용한 것이 아닌 따로 학습시킨 Model을 PVC에 저장하고 이를 Serving하는 부분을 안내한다.
 
-KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test하는 것까지 진행하며, Test는 Kubernetes 같은 Container 안에서 배포하는 것을 가정하여, Ubuntu Image 기반의 Test Pod를 생성하고 그 안에서 __Cluster IP__ 를 통해 API를 호출한다. Test는 ScikitLearn의 Iris 분류 Model을 기반으로 진행하였다.
+KServe의 __Inference Service__ 를 이용해서 Model을 Serving하고 Test까지 하는 것을 진행하는데, Test는 Kubernetes 안의 Container 안에서 배포하는 것을 가정하고 진행한다. Tensorflow의 홈페이지에 나와있는 Image Classification의 [__Mobile Net__](https://www.tensorflow.org/guide/saved_model) 을 사용해서 학습을 하고 Model을 PVC에서 불러온다.
   
-Model Serving은 위에서 언급했던 것처럼 Training이 완료된 Model을 사용자들이 사용할 수 있도록 REST API / gRPC(여기서는 사용하지 않음) 형태로 제공하는 작업이다. KServe에서 Model을 Serving하는 방법은 다양하겠지만 전반적인 Process는 다음과 같다.
+Model Serving은 위에서 언급했던 것처럼 Training이 완료된 Model을 사용자들이 사용할 수 있도록 __REST API / gRPC(여기서는 사용하지 않음)__ 형태로 제공하는 작업이다. KServe에서 Model을 Serving하는 방법은 다양하겠지만 전반적인 Process는 다음과 같다.
 
 <details>
   <summary>Model Serving 과정</summary>
@@ -177,7 +178,7 @@ spec:
   
 해당 구조는 가장 기본적인 구조로 해당 값들만 넣어주어도 Inference Service가 생성되긴 한다. (물론 정상적인 값들을 넣었을 때만...)
   
-추가적으로 작업하면서 필요한 항목들에 대해서 작성해서 알려주자면,
+추가적으로 작업하면서 필요한 항목들에 대해서 대략 설명하자면,
   
 ```yaml
 apiVersion: ${KServe API Version}
@@ -201,7 +202,6 @@ spec:
       # 그 외의 다른 Runtime Version을 사용하고 싶다면 해당 Field를 사용하여 정의해준다.
       runtimeVersion: ${RUNTIME_VERSION}
       # 자원 사용에 대한 정의 : Inference 과정에서 요구되는 자원과 한계 자원에 대한 정의를 내린다.
-      # 아직 정확하게는 사용해보지 않아서 추가적인 공부가 필요함
       # 따로 정의를 해주지 않는다면 Default로 CPU 1, Memory 2Gi 값이 들어감
       resources:
         limits:
@@ -214,21 +214,47 @@ spec:
 
 ## Model 생성
   
-Model의 생성 방법은 다양하다. 대중적으로 사용되는 모델은 이미 생성된 Model File이 Cloud에 저장되어 있을 수도 있고, Custom Model의 경우에는 PVC, Local, 개인 Cloud Storage...등에 저장이 되어있을 수 있다. 여기서는 __[1] Google Cloud Storage 의 Model__ 과 __[2] Persistant Volume Claim(PVC)__ 에 올린 Custom Model을 Serving하는 Test를 진행한다. [1]의 경우에는 추후 YAML file 생성 과정에서 storage URI를 작성하는데, 그 부분에 gcs:// 접두사와 함께 Storage 경로를 작성하면 되기 때문에 그 때 다룬다.
+Model의 생성 방법은 다양하다. 대중적으로 사용되는 모델은 이미 생성된 Model File이 Cloud에 저장되어 있을 수도 있고, Custom Model의 경우에는 PVC, Local, 개인 Cloud Storage...등에 저장이 되어있을 수 있다. 여기서는 __Persistant Volume Claim(PVC)__ 에 올린 Model을 Serving하고 정상적으로 반응하는지 여부를 Test를 진행한다.
   
-```python
-from sklearn import svm # Support Vector Machine module import
-from sklearn import datasets # ScikitLearn에 있는 Iris data set을 가져오기 위한 module import
-from joblib import dump # 추후 Model을 떨구기 위한 Module
-  
-# Data와 label 선언
-iris_datasets = datasets.load_iris()
-X, y = iris_datasets, iris.target
+- Model Code
 
-clf = svm.SVC(gamma='scale')
-clf.fit(X, y)
-  
-dump(clf, 'iris-model.joblib') # iris-model.joblib으로 Model이 생성
+```python
+import tensorflow as tf
+from matplotlib import pyplot as plt
+import numpy as np
+
+# Tensorflow + MobileNet
+# Kubeflow Jupyter Notebook 위에서 코드를 실행시켰다. (사실 이건 어떻게 되었든 상관 없음)
+# Directory 형태로 Model을 만드는데 '${Model Name}/${Nubmer}/' 안에 만들어진 Model을 저장
+# Path : pvc://dc-test-volume/mobilenet_tf/mobilenet
+
+# Load Data
+file = tf.keras.utils.get_file(
+    "grace_hopper.jpg",
+    "https://storage.googleapis.com/download.tensorflow.org/example_images/grace_hopper.jpg"
+)
+
+# Data Preprocessing
+img = tf.keras.preprocessing.image.load_img(file, target_size=[224, 224])
+plt.imshow(img)
+plt.axis('off')
+x = tf.keras.preprocessing.image.img_to_array(img)
+x = tf.keras.applications.mobilenet.preprocess_input(x[tf.newaxis,...])
+
+# Label Setting
+labels_path = tf.keras.utils.get_file('ImageNetLabels.txt','https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt')
+imagenet_labels = np.array(open(labels_path).read().splitlines())
+
+# Model Training
+pretrained_model = tf.keras.applications.MobileNet()
+result_before_save = pretrained_model(x)
+
+decoded = imagenet_labels[np.argsort(result_before_save)[0,::-1][:5]+1]
+
+print("저장 전 결과:\n", decoded)
+
+# Model Save : Serving하는 과정에서 Model을 불러올 때 경로는 반드시 '{Model Name}/{Number}' 형태로 지정해준다.
+tf.saved_model.save(pretrained_model, "mobilenet_tf/1")
 ```
   
 ## InferenceService YAML file 작성 및 생성
@@ -240,119 +266,152 @@ dump(clf, 'iris-model.joblib') # iris-model.joblib으로 Model이 생성
 apiVersion: "serving.kserve.io/v1beta1"
 kind: "InferenceService"
 metadata:
-  name: "sklearn-iris"
-  # Namespace는 필요에 맞춰서 선언해주면 된다.
-  # namespace: "kubeflow-user-example-com"
+  annotations:
+    sidecar.istio.io/inject: "false"
+  # Serving Name
+  name: "mobilenet"
+  namespace: "kubeflow-user-example-com"
 spec:
   predictor:
-    # Predictor Framework
-    sklearn:
-      # Serving Protocol Version
-      ProtocolVersion: "v2"
-      # Model Storage Path
-      storageUri: "gs://seldon-models/sklearn/iris"
+    # Serving Engine
+    tensorflow:
+      # Serving Engine Protocol Version : 상황에 맞춰서 선언해줌
+      ProtocolVersion: "v1"
+      # Model Storage Path : 여기서는 'dc-test-volume'이라는 PVC를 지정하고,
+      # Path는 'mobilenet_tf/1'로 설정했다.
+      # pvc://dc-test-volume/mobilenet_tf/1
+      storageUri: "pvc://{PVC Name"}/{Path}"
 ```
 
-- YAML file을 만들었다면 Kubernetes에 올린다.
-  
+YAML file을 만들었다면 Kubernetes에 올린다. Kubeflow Central Dashboard 위에서 올려도 되고, CLI로 직접 apply 해주어도 상관 없다.
+
 ```shell
-kubectl create -f sklearn-iris.yaml
+kubectl create -f ${INFERENCE_YAML}
 ```
 
-## Input data & Serving Model에 대한 REST API 정보 가져오기
+여기서 Model을 Serving하는 대략적인 Logic은 다음과 같다.
+
+1. Inference Service YAML __배포__
+2. __Pod 1개__ , __Service 4개__ (Service Name : {Model Name}, {Model Name}-defualt, {Model Name}-defaul-0001, {Model_Name}-default-0001-private)
+3. Pod를 생성하면서 _storageUri_ Field에 지정한 __PVC__ 를 Pod 안의 ```/mnt``` 안에 __Mount__ 한다.
+4. ```/mnt``` 안에 ```models``` 라는 _Directory_ 를 생성하고 _storageUri_ Field의 __Path__ 로 지정된 Directory 혹은 File을 해당 경로로 __Pulling__ 한다.
+5. _Srving Engine_ 은 ```/mnt/models``` 안으로 가져온 Model을 Serving 한다.
+
+## Serving Model에 대한 REST API 정보 가져오기
 
 Model을 생성하고 정상적으로 Kubernetes에 Serving을 했다면, 다음과 같은 명령어를 통해 정상적으로 올라갔는지 확인할 수 있다.
   
 ```shell
-# Serving한 Model의 이름과 -n 옵션을 통해 Namespace를 선언
-kubectl get isvc sklearn-iris -n kubeflow-user-example-com
+# Inference Service 상태 조회
+kubectl get isvc ${SERVING_NAME} -n ${NAMESPACE}
   
 # Pod에도 정상적으로 올라갔는지 확인
-kubectl get pod -n kubeflow-user-example-com | grep sklearn-iris
+kubectl get pod -n ${NAMESPACE} | grep ${MODEL_NAME}
 ```
 
-- 결과 화면
+- 결과 화면 (참조 정도만 하자)
   
 ![Alt Text][check_inference_service_status]
 
-정상적으로 올라가는 것을 확인했다면, Input Data와 Serving Model에 대한 REST API 정보를 가져와야하는는데, _Protocol Version_ __V2__ 기준으로 Serving Model에 대한 Predict Endpoint는 ```/v2/models/${MODEL_NAME}/infer``` 이 된다.
-
-REST API에서 IP, Port 정보는 Kubernetes 환경 안에서만 서빙하는 용도로 사용하기 때문에 __Cluster IP__ 와 기본으로 설정된 Port인 __80__ Port만 가져와도 된다. (Personal하게 설정이 가능하긴 하지만, 일단 default로 정해진 80 포트를 이용한다.)
-
-또한, 이를 사용하기 위해서는 Kubeflow 초기 설치 과정에서 설치된 __Dex 인증__ 관련해서 _ID Token_ 값을 가져와야하는데, 이는 밑에서 다루기 때문에 발급 받았다고 가정하고 진행한다.
+정상적으로 올라갔다면, REST API 호출을 위한 Service의 Cluster IP 값을 알아야 하기 때문에 Service 조회를 해준다.
 
 ```shell
-# Serving Model의 Cluter IP 정보를 확인
-# 기본적으로 svc는 4개가 생성이 되는데,
-# 여기서 ${MODEL_NAME}-predictor-default-xxxx-private의 Cluster IP를 가져온다.
-kubectl get svc -n kubeflow-user-example-com | grep sklearn-iris
+kubectl get svc -n ${NAMESPACE} | grep ${MODEL_NAME}
 ```
 
-Input Data는 _Ubuntu_ Image가 들어간 __Pod__ 에서 진행하는데, 그 곳에 Test data를 만들어준다. 가상으로 만드는 Pod YAML의 구조는 다음과 같다.
+![Alt Text][get_inference_service]
 
-```shell
-# Just Test 용도이므로 굳이 복잡할 필요가 없다.
-apiVersion: v1
-kind: Pod
-metadata:
-  name: inference-test-pod
-  namespace: default
-spec:
-  containers:
-  - name: ubuntu
-    image: ubuntu
-    command:
-      - sleep
-      - infinity
-  hostNetwork: true
-  dnsPolicy: Default
+Test 환경에서는 Kubernetes 내부에서 진행하기 때문에 ${MODEL_NAME}-default-0001-private 에서 할당된 __Cluster IP__ 와 Serving Port인 __80__ Port를 사용한다. 또한, Kubeflow 설치 과정에서 사용된 Dex 인증을 진행한 뒤에 ID Token 값을 설정해준다.
+
+Serving Model에 대한 REST API 에서 _Endpoint_ 는 __Protocol Version__ 에 따라 나뉜다. _Protocol Version_ __V2__ 기준으로 Serving Model에 대한 Predict Endpoint는 ```/v2/models/${MODEL_NAME}/infer``` 이 된다. 만약 _Protocol Version_ __V1__ 이라면, Predict Endpoint는 ```/v1/models/${MODEL_NAME}:predict``` 가 된다.
+
+## Serving Model Test
+> Serving Model에 대한 Test
+
+Prediction REST API Test는 다양하게 할 수 있다.
+- Kubeflow Jupyter Notebook 환경에서 ```ipynb``` file 에 Prediction Request
+- __Kubeflow Jupyter Notebook 환경에서__ ```py``` __file에 Prediction Request 하고 python3 ${PREDICTION_FILE}__ : 해당 환경에서 Test를 진행한다.
+- Kubernetes에 Test 용 __Pod__ 를 올리고 해당 Shell Script 안에서 Test
+- Postman 등 __외부__ 에서 Test (AWS EC2 Instance 환경에서 진행할 때는 Public IP를 통해서 접근했다.)
+
+언급한대로, __Kubeflow의 Jupyter Notebook__ 환경에서 Test를 진행하는데, Model을 만들었던 Notebook이 아닌, 다른 Notebook 환경에서 Test를 진행해봤다.
+
+Python Code는 __Data Preprocessing__ 과 __Prediction Test__ Code로 나뉘며, 이렇게 하는 이유는 보통 전처리 코드는 따로 구성을 해두고 불러오기 때문에 이를 가정하고 Setting을 진행한 것이다.
+
+1. Data Preprocessing
+
+전처리 코드에서는 Sample Image를 불러오고 이를 전처리하여 그 결과를 Return 한다. 결과는 __Tensor__ 형태로 나오게 된다.
+
+```python
+import tensorflow as tf
+import os
+
+# Data Preprocessing Method
+def data_preprocess(image_path):
+    # Image Resizing(224, 224)
+    img = tf.keras.preprocessing.image.load_img(image_path, target_size=[224, 224])
+
+    # Image Preprocessing -> Image to Array
+    x = tf.keras.preprocessing.image.img_to_array(img)
+    x = tf.keras.applications.mobilenet.preprocess_input(x[tf.newaxis,...])
+    
+    
+    return x.tolist()
 ```
 
-YAML file을 만들고 ```kubectl create -f inference-test-pod.yaml```을 했다면, 정상적으로 Pod가 생성될 것이고, 이곳 shell script에 접속한다. ```kubectl exec --stdin --tty inference-test-pod -n default -- /bin/bash``` 접속을 하게 되면 간단하게 _vi_ 관련하여 설정 및 설치를 진행한다. (Optional) 이후에 ID Token 값과 Cluster IP, Port를 설정해주고, 테스트를 위한 Input data를 생성해준다. 여기서는 ```iris-input.json``` 파일을 가져다가 쓴다.
+2. Model Prediction
 
-```shell
-# 반드시 Pod 안의 환경에서 진행
-apt-get update
-# vi command 사용을 위한 설치
-apt-get install vim
+Model Prediction 코드에서는 전처리 후 나온 Data를 Input Format (Protocol Version에 따른 Format)에 맞추고, Serving Model을 _REST API_ 로 호출하여 Prediction 수행하고 그 결과를 출력한다. __ID Token, Host, Model Name__ 등을 설정해주고 이를 기반으로 Request를 수행한다.
 
-ID_TOKEN=${ID TOKEN 값}
-CLUSTER_IP=${Cluster IP 값}
-CLUSTER_PORT=80
+```python
+import numpy
+import requests
+import json
+import os
+
+# Preprocess Code Load
+from data_preprocessing import data_preprocess
+
+# MobileNet Model Prediction Test
+# ID Token Setting
+TOKEN = "" # ID Token
+
+# Header Setting (ID Token)
+HEADER = {"Cookie" : "authservice_sessoin=" + TOKEN}
+
+# Cluster IP & PORT / Model Name Setting
+CLUSTER_IP = "" # Inference Service Cluster IP
+CLUSTER_PORT = "" # Inference Service Cluster Port
+MODEL_NAME = "" # Model Name
+
+# Sample Image & Data Preprocessing
+image_path = os.getcwd() + "/sample_img.png" # Sample Image Path Input
+preprocessed_data = data_preprocess(image_path) # Data Preprocessing
+
+# Input Shape Formatting
+data = json.dumps({"instances" : preprocessed_data})
+
+# URL Setting
+url = "http://" + CLUSTER_IP + ":" + CLUSTER_PORT + "/v1/models/" + MODEL_NAME + ":predict"
+
+# Request & Response
+response = requests.post(url, data=data, headers=HEADER)
+
+# Numpy Convert & Print
+result = numpy.array(response.json()["predictions"])
+print(result)
 ```
 
-- __iris-input.json__
+정상적으로 Prediction을 수행한다면, 아래와 같은 결과가 나온다.
 
-```json
-{
-  "inputs": [
-    {
-      "name": "input-0",
-      "shape": [2, 4],
-      "datatype": "FP32",
-      "data": [
-        [6.8, 2.8, 4.8, 1.4],
-        [6.0, 3.4, 4.5, 1.6]
-      ]
-    }
-  ]
-}
+```
+{'predictions': [[6.6335673e-08, 4.0237822e-09, ...
+...
+...
+, 5.67394398e-09, 4.12778064e-07]]}
 ```
 
-여기까지 설정했다면, Serving 했던 Model을 Test 해볼 수 있는 환경이 만들어진 것이고, 이것을 그대로 ```curl``` 을 통해서 __POST__ action을 해주면 정상적으로 동작하는 것을 확인할 수 있다.
-
-```shell
-# Model Name, d 옵션의 보낼 파일은 맞춰서 설정
-curl -v -H "Cookie: authservice_session=${TOKEN}" -d @./iris-input.json http://${CLUSTER_IP}:${CLUSTER_PORT}/v2/models/${MODEL_NAME}/infer
-```
-
-정상적으로 동작을 했다면, 다음과 같은 결과가 나오게 된다.
-
-![Alt Text][test_model_serving_result]
-
-### Persistant Volume Claim Case
-
-위의 예제는 _Google Cloud Storage_ 를 통해서 Test를 진행한 예제였다. 만약에 _Custom Model_ 을 생성했는데, 이것이 __PVC__ 에 저장되어 있다면 InferenceService YAML file을 만들면서 storageUri의 접두어를 ```pvc://``` 로 바꾼 다음 경로는 ```pvc://${PVC_NAME}/${PATH}``` 로 설정해준 뒤에 Serving을 해주고 나머지는 그대로 수행해주면 된다. (따로 가이드하지 않는다. 정말 이거 하나만 잘 설정해주면 끝나기 때문에...)
+이 외에도 다양한 방식으로 Test를 해볼 수 있겠지만, CLI 환경에서 Test 하는 것은 의미가 없을 것 같아서 제외했다. 대략 로직을 설명해주자면, Test 하기 위한 Pod (OS 환경은 상관없다.)를 하나 만들어주고, Shell Script로 접속한 다음에 ID Token, Model Name, Host 정보 설정하고 Input Shape에 맞춘 Data를 cURL로 날려주면 비슷한 결과가 나올 것이다.
 
 ----------------------
 
@@ -538,6 +597,6 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUS
 [dex_auth_id_token_test_result]:https://imgur.com/UV3hZ9M.png
 [dex_auth_id_token_test_result_cluster_ip]:https://imgur.com/fff0Uc8.png
 [check_inference_service_status]:https://imgur.com/3ZTMVhU.png
-[test_model_serving_result]:https://imgur.com/r07rpPn.png
 [kserve_structure]:https://imgur.com/NU2oBQ8.png
 [kserve_architecture]:https://imgur.com/rGnc7dy.png
+[get_inference_service]:https://imgur.com/DWs8cdg.png
