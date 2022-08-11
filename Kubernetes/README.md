@@ -321,7 +321,7 @@ spec:
       storageUri: pvc://test-volume/model/model.joblib
 ```
 
-- Overcommit : Node 내의 Container 모든 Resource의 __Limit__ 합계가 Node 전체 Resource의 양을 초과한 상태로, Kubernetes는 Overcommit을 허용하는데, 보통 Node가 _Scale up _ 되어지거나, Pod가 삭제되고 다시 생성된다. 이때 Pod가 삭제되는 순서는 Resource 요청을 _가장 많이 초과한_ Pod부터 삭제된다.
+- Overcommit : Node 내의 Container 모든 Resource의 __Limit__ 합계가 Node 전체 Resource의 양을 초과한 상태로, Kubernetes는 Overcommit을 허용하는데, 보통 Node가 _Scale up_ 되어지거나, Pod가 삭제되고 다시 생성된다. 이때 Pod가 삭제되는 순서는 Resource 요청을 _가장 많이 초과한_ Pod부터 삭제된다.
 
 #### Resource 부분은 배워갈 때마다 하나씩 추가하도록 한다.
 
