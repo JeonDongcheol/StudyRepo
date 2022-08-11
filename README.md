@@ -3,7 +3,7 @@
 
 > 서투르다보니 다소 틀린 부분도 많은데 Feedback은 얼마든 환영
 
-> 22.08.97(Mon) Markdown 
+> 22.08.11(Thur) KServe : Model Serving Using PVC  
 
 ## Contents
 1. [__Kubernetes__](./Kubernetes)
