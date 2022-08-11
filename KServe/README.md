@@ -214,7 +214,7 @@ spec:
 
 ## Model 생성
   
-Model의 생성 방법은 다양하다. 대중적으로 사용되는 모델은 이미 생성된 Model File이 Cloud에 저장되어 있을 수도 있고, Custom Model의 경우에는 PVC, Local, 개인 Cloud Storage...등에 저장이 되어있을 수 있다. 여기서는 __Persistant Volume Claim(PVC)__ 에 올린 Model을 Serving하고 정상적으로 반응하는지 여부를 Test를 진행한다.
+Model의 생성 방법은 다양하다. 대중적으로 사용되는 모델은 이미 생성된 Model File이 Cloud에 저장되어 있을 수도 있고, Custom Model의 경우에는 PVC, Local, 개인 Cloud Storage...등에 저장이 되어있을 수 있다. 여기서는 Kubeflow Jupyter Notebook에 Mount 되어 있는 __Persistant Volume Claim(PVC)__ 에 Model을 저장한다.
   
 - Model Code
 
