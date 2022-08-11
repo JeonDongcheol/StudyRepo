@@ -1,0 +1,10 @@
+1,1,Trouser
+2,1,Trouser
+3,4,Coat
+4,7,Sneaker
+5,2,Pullover
+6,6,Shirt
+7,5,Sandal
+8,8,Bag
+9,5,Sandal
+10,8,Bag
