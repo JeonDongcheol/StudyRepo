@@ -599,4 +599,4 @@ curl -v -H "Cookie: authservice_session=${TOKEN}" -d ${INPUT_DATA} http://${CLUS
 [check_inference_service_status]:https://imgur.com/3ZTMVhU.png
 [kserve_structure]:https://imgur.com/NU2oBQ8.png
 [kserve_architecture]:https://imgur.com/rGnc7dy.png
-[get_inference_service]:https://imgur.com/DWs8cdg.png
+[get_inference_service]:https://imgur.com/vmED0lg.png
