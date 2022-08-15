@@ -38,7 +38,7 @@ Linux 기반에서 필요한 Library와 Application을 모아서 별도의 Serve
 
 Docker는 _Container_ 기술을 기반으로 Application에 필요한 환경을 신속하게 구축, 테스트, 배포할 수 있게 도와주는 Platform이다. 한 가지 알아야할 것은 Docker가 Container 기술을 만든 것이 아니라, Docker는 Container 개발 환경을 사용하기 쉽게 만든 Platform인 것이다. __MSA__ (Micro Service Architecture) 환경에서 아주 유용하게 사용되는 기술로, 하나의 서비스에서 기능 단위로 Module화 되어있는 구조를 기본으로 한다.
 
-Docker는 Linux Kernel의 _Namespace_ 를 사용하고 있기 때문에, Container 단위로 논리적인 공간을 갖게 된다는 것을 확인할 수 있다. 이를 통해 Host OS나 다른 Container와 같은 __PID__ 를 갖는 Process를 띄우거나, 같은 Port에 서비스를 띄우는 작업 등을 할 수 있다.
+Docker는 Linux Kernel의 _Namespace_ 를 사용하고 있기 때문에, Container 단위로 논리적인 공간을 갖게 된다는 것을 확인할 수 있다. 이를 통해 Host OS나 다른 Container와 같은 __PID(Process ID)__ 를 갖는 Process를 띄우거나, 같은 Port에 서비스를 띄우는 작업 등을 할 수 있다.
 
 Docker의 Resrouce Management에 대해서는 결국 Host OS의 물리적인 Resource는 공유 받아야하는데, Linux Kernel의 ```cgroups``` 를 활용해서 __CPU, Memory, Network, I/O__ 등을 제어할 수 있다.
 
