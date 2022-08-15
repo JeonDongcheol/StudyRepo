@@ -370,8 +370,8 @@ spec:
 - Persistant Volume Claim(PVC) State가 'Terminating' 상태로 남아있을 때 삭제하는 방법 : ```kubectl patch pvc -n ${NAMESPACE} ${PVC_NAME} -p '{"metadata": {"finalizers": null}}'```
 
 #### Reference :
-1. [Kubernetes Documents](https://kubernetes.io/ko/docs/home/)
-
+- [Kubernetes Documents](https://kubernetes.io/ko/docs/home/)
+- [Subicura Kubernetes 안내서](https://subicura.com/k8s/)
 
 [kubernetes_install_success]:https://imgur.com/APkDbp1.png
 [k8s_deployment]:https://imgur.com/AVVuwQi.png
