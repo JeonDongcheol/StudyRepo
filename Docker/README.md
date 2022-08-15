@@ -22,7 +22,7 @@ _Virtual Environment_ 와의 차이점
 - Container(Docker, Containered, CRI-O...) 등은 __Container Runtime__ 을 기반으로 운영한다.
 - Container는 Guest OS가 없고, Host OS의 _Kernel_ 을 공유하여 Overhead가 적고 가벼워서 빠르다.
 
-[!Alt Text](container_and_virtual)
+[!Alt Text][container_and_virtual]
 
 ### Linux Container
 
