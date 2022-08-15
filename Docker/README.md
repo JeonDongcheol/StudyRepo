@@ -4,9 +4,9 @@
 ### Index :
 1. [__Container Environment__](#container_env)
 2. [__What is Docker?__](#what_is_docker)
-3. [__Docker Install & Base Command__](#install_docker_and_base_command)
+3. [__Docker Install & Base Command__](#install_docker)
 
-# Container Environment <a name="container_env" />
+# 1. Container Environment <a name="container_env" />
 > Docker를 알기 전에 Container 개발 환경에 대해서 먼저 공부한다.
 
 __Host OS__ 위에서 Resource를 _Logical_ 하게 구분하여 마치 별도의 Server인 것처럼 사용할 수 있게 해주는 기술로, 물리적으로 구분을 하지는 않는다. 논리적으로 구분을 해두어서 쉽게 없앨 수 있고 가벼우며, 재생성이 용이하다. Container 기반의 개발 환경을 사용하는 이유는 다음과 같다.
@@ -34,7 +34,7 @@ Linux 기반에서 필요한 Library와 Application을 모아서 별도의 Serve
 
 ----------------------------------------------------
 
-# What is Docker? <a name="what_is_docker" />
+# 2. What is Docker? <a name="what_is_docker" />
 
 Docker는 _Container_ 기술을 기반으로 Application에 필요한 환경을 신속하게 구축, 테스트, 배포할 수 있게 도와주는 Platform이다. 한 가지 알아야할 것은 Docker가 Container 기술을 만든 것이 아니라, Docker는 Container 개발 환경을 사용하기 쉽게 만든 Platform인 것이다. __MSA__ (Micro Service Architecture) 환경에서 아주 유용하게 사용되는 기술로, 하나의 서비스에서 기능 단위로 Module화 되어있는 구조를 기본으로 한다.
 
@@ -56,7 +56,7 @@ __Layer 및 Union File System__ 을 기반으로 여러 개의 Layer를 하나�
 
 ------------------------------------
 
-# Docker Install & Base Command <a name="install_docker_and_base_command" />
+# 3. Docker Install <a name="install_docker" />
 > Docker를 설치하고 기본적인 Image를 Build하고 Run하는 연습 및 Docker File 작성 Guide
 
 Docker를 설치하고 Image를 Build하는 Test를 진행한다. __AWS EC2 Cloud__ 에 __RedHet Enterprise Linux__ 를 올리고 그 위에 설치한다. 다른 환경에 대해서는 추후에 Guide를 해보려고 한다.
