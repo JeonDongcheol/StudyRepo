@@ -63,51 +63,9 @@ sudo vi /etc/hosts
 <Worker3 Node Private IP>   worker03
 ```
 
-- 기본 구성을 완료했다면, Kubernetes를 설치하기 전에 **Docker** 를 먼저 설치한다.
+- __Docker__ 와 사용할 것이므로 Docker를 사전에 설치해주도록 한다. Docker 설치를 했다면 ```kubeadm init``` 과정에서 __kubelet__ 관련 이슈를 제거하기 위해 ```/etc/docker``` 경로에 ```daemon.json``` 파일을 추가해주도록 한다.
 
 ```bash
-# 사전에 Docker가 설치되어 있다면, 제거하고 다시 설치한다.
-sudo yum remove docker \
-docker-client \
-docker-client-latest \
-docker-common \
-docker-latest \
-docker-latest-logrotate \
-docker-logrotate \
-docker-engine \
-podman \
-runc
-
-# Docker Repolist에 Base URL 추가
-sudo yum-config-manager \
---add-repo \
-https://download.docker.com/linux/rhel/docker-ce.repo
-
-# Docker Stable Base URL 수정을 위해 편집모드 이동
-sudo vi /etc/yum.repos.d/docker-ce.repo
-
-# 기존의 Docker CE Stable Base URL 부분을 주석 처리하고, 다음 내용을 추가한다.
-# 추가할 내용 : baseurl=https://download.docker.com/linux/centos/7/x86_64/stable
-
-# Docker 설치에 필요한 Package Install
-sudo yum install -y http://mirror.centos.org/centos/7/extras/x86_64/Packages/slirp4netns-0.4.3-4.el7_8.x86_64.rpm
-sudo yum install -y http://mirror.centos.org/centos/7/extras/x86_64/Packages/container-selinux-2.107-1.el7_6.noarch.rpm
-sudo yum install -y http://mirror.centos.org/centos/7/extras/x86_64/Packages/fuse3-libs-3.6.1-4.el7.x86_64.rpm
-sudo yum install -y http://mirror.centos.org/centos/7/extras/x86_64/Packages/fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
-
-# Dokcer Pakage 설치
-sudo yum install docker-ce docker-ce-cli containerd.io -y
-
-
-# 일반 사용자의 Docker 사용을 위한 작업
-sudo groupadd docker
-sudo usermod -aG docker $USER
-newgrp docker
-
-# Docker 실행
-sudo systemctl start docker
-
-
 # /etc/docker 경로에 daemon.json 파일 추가 -> kubeadm init 시 kubelet 관련 이슈를 제거
 cat <<EOF | sudo tee /etc/docker/daemon.json
 {
@@ -126,7 +84,7 @@ sudo systemctl restart docker
 sudo systemctl enable docker
 ```
 
-- 여기까지 Docker 설치가 Error 없이 잘 끝났다면, Kubernetes 설치하기 전 *System Configuration* 을 진행한다.
+- Kubernetes 설치하기 전 *System Configuration* 을 진행한다.
 
 ```bash
 # 방화벽 Disable : firewalld 자체가 없으면 Error
