@@ -116,7 +116,5 @@ sudo systemctl enable docker
 docker --version
 ```
 
-## Docker 
-
 [container_and_virtual]:https://imgur.com/ApjrMir.png
 [docker_layer]:https://imgur.com/40RPTyl.png
