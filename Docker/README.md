@@ -127,19 +127,48 @@ Dockerfile은 Dockerfile이 있는 Directory를 _Context_ 로 인식하여 작�
 
 Dockerfile 내부에서 사용되는 명령어는 다음과 같다.
 
-- __FROM__ : Docker Image를 생성할 때 필요한 _Base Image_ 로, 뼈대가 되는 부분이다. 주로 __OS__ 혹은 __Code Language__ 를 설정해준다. Dockerfile은 Base Image를 토대로 그 위에 여러 Image를 중첩하여 Layer를 쌓아가며 만들어가는 형태를 가진다. ```FROM <Base Image>:<Tag>``` 형태를 가진다.
-- __WORKDIR__ : Shell Script의 ```cd``` 명령문처럼 Container 상에서 작업 Directory로 전환을 해주는 명령어이다. 해당 명령어를 수행하는 순간 이후의 ```RUN``` , ```CMD``` , ```ENTRYPOINT``` , ```COPY``` , ```ADD``` 명령어들은 해당 Directory를 기준으로 실행된다.
-- __RUN__ : _Shell Script_ 를 사용할 수 있도록 해주는 부분으로, Image Build 과정에서 필요한 Command를 실행하기 위해 사용된다. 주로 Image 안의 특정 Software를 설치할 때 사용이 된다.
-- __CMD__ : 해당 Image를 Container로 띄울 때 Default로 실행시킬 Command 혹은 ```ENTRYPOINT``` 로 지정된 Command에 Default로 넘길 Parameter를 지정할 때 사용한다.
-- __ENTRYPOINT__ : Image를 Container로 띄울 때 항상 실행되어야 하는 Command를 지정한다. Docker Image를 마치 하나의 실행 파일처럼 사용할 때 유용하게 사용된다. (Container가 뜰 때 ENTRYPOINT로 지정된 Command가 실행되고, 해당 Command로 실행된 Process가 죽을 때 Container도 따라서 종료가 되기 때문이다.)
-- __EXPOSE__ : Network 상에서 Container로 들어오는 _Traffic_ 을 _Listening_ 하는 Port와 Protocol을 지정하기 위해서 사용한다. Protocol은 _TCP_ 와 _UDP_ 중 선택할 수 있는데, 별도의 지정이 없으면 __TCP__ 가 Default로 사용된다. 이때 EXPOSE로 지정한 Port는 해당 Container의 내부에서만 유효하며, Host PC에서는 해당 Port에 바로 접근할 수 있는 것은 아니다. Host PC에서 해당 Container의 Port로 접근하기 위해서는 이후에 ```docker run``` 과정에서 __-p__ Option을 사용해 Port Forwarding을 해주어야 한다.
-- __COPY__ : Host PC의 Directory 혹은 File을 Docker Image의 File System으로 복사하기 위해 사용한다. 절대 & 상대 경로를 모두 지원하며, 상대 경로를 사용할 때는 _WORKDIR_ 로 지정한 Directory를 어디로 두었는지 반드시 고려해야한다.
-- __ADD__ : COPY 명령어의 상위 호환 명령어로, Network 상의 File도 사용할 수 있는 명령어인데, 왠만하면 COPY를 쓴다.
-- __ENV__ : 환경 변수를 설정하기 위해 사용하는 명령어로, ENV로 설정된 환경 변수는 Image Build 외에도 해당 Container에서 실행 중인 Application도 접근할 수 있다.
-- __ARG__ : Image Build 과정에서 ```--build-arg``` Option을 통해 넘길 수 있는 인자를 정의하기 위해 사용한다. Default 값도 지정해줄 수 있다.
-- __MAINTAINER__ : 해당 Image의 생성, 유지 보수 등의 관리자를 명시하는 부분인데, 추후에 보충할 예정이다.
+<details>
+  <summary>Dockerfile Command 정리</summary>
+  <div markdown="1">
+  1. <b>FROM</b> : Docker Image를 생성할 때 필요한 Base Image로, 뼈대가 되는 부분이다. 주로 OS 혹은 Code Language 를 설정해준다.
+  </div>
+  <div markdown="2">
+  2. <b>WORKDIR</b> : Shell Script의 'cd' 명령어처럼 Container 상에서 작업 Directory로 전환을 해주는 명령어이다.
+  </div>
+  <div markdown="3">
+  3. <b>RUN</b> : Shell Script를 사용할 수 있도록 해주는 부분으로, Image Build 과정에서 필요한 Command를 실행하기 위해 사용된다.
+  </div>
+  <div markdown="4">
+  4. <b>CMD</b> : 해당 Image를 Container로 띄울 때 Default로 실행시킬 Command 혹은 ENTRYPOINT로 지정된 Command에 Default로 넘길 Parameter를 지정할 때 사용한다.
+  </div>  <div markdown="5">
+  5. <b>ENTRYPOINT</b> : Image를 Container로 띄울 때 항상 실행되어야 하는 Command를 지정한다. Docker Image를 마치 하나의 실행 파일처럼 사용할 때 유용하다.
+  </div>  <div markdown="6">
+  6. <b>EXPOSE</b> : Network 상에서 Container로 들어오는 Traffic을 Listening 하는 Port와 Protocol을 지정하기 위해서 사용한다.
+  </div>
+  <div markdown="7">
+  7. <b>COPY</b> : Host PC의 Directory 혹은 File을 Docker Image의 File System으로 복사하기 위해 사용한다. 절대 & 상대 경로를 모두 지원한다.
+  </div>
+  <div markdown="8">
+  8. <b>ADD</b> : COPY 명령어의 상위 호환 명령어로, Network 상의 File도 사용할 수 있는 명령어인데, 왠만하면 COPY를 쓴다.
+  </div>
+    <div markdown="9">
+  9. <b>ENV</b> : 환경 변수를 설정하기 위해 사용하는 명령어로, ENV로 설정된 환경 변수는 Image Build 외에도 해당 Container에서 실행 중인 Application도 접근할 수 있다.
+  </div>
+    <div markdown="10">
+  10. <b>ARG</b> : Image Build 과정에서 '--build-arg' Option을 통해 넘길 수 있는 인자를 정의하기 위해 사용한다. Default 값도 지정해줄 수 있다.
+  </div>
+    <div markdown="11">
+  11. <b>MAINTAINER</b> : 해당 Image의 생성, 유지 보수 등의 관리자를 명시하는 부분인데, 추후에 보충할 예정이다.
+  </div>
+</details>
 
-##### RUN vs CMD vs ENTRYPOINT : RUN은 새로운 Layer를 생성하거나, 생성된 Layer 위에서 Command를 실행한다. CMD는 Docker Container가 실행될 때 실행되는 명령어로, 사용자가 docker run을 할 때 따로 명령어를 적어주면 CMD는 실행되지 않는다. ENTRYPOINT는 docker run으로 생성하거나, docker start로 중지된 container를 시작할 때 실행되는 명령어로 CMD와 동일한 역할을 수행하지만, Dockerfile 내에서 1번만 정의 가능하며, docker run으로 container를 실행할 때 Command를 직접 입력하면 이를 ENTRYPOINT의 파라미터로 인식한다.
+##### RUN vs CMD vs ENTRYPOINT
+
+```RUN``` 은 새로운 _Layer_ 를 생성하거나, 생성된 _Layer_ 위에서 _Command_ 를 실행한다.
+
+```CMD``` 는 Docker Container가 실행될 때 실행되는 명령어로, 사용자가 ```docker run``` 을 할 때 따로 명령어를 적어주면 CMD는 실행되지 않는다.
+
+```ENTRYPOINT``` 는 ```docker run``` 으로 생성하거나, ```docker start``` 로 중지된 container를 시작할 때 실행되는 명령어로 __CMD__ 와 동일한 역할을 수행하지만, Dockerfile 내에서 __1번__ 만 정의 가능하며, ```docker run``` 으로 container를 실행할 때 Command를 직접 입력하면 이를 ENTRYPOINT의 파라미터로 인식한다.
 
 ### 간단한 Dockerfile
 > Django Server를 Dockerfile을 통해 Image를 Build 하는 과정에서 작성한 Docker File이다. 참고만 하자.
