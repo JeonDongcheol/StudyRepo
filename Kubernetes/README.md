@@ -47,7 +47,7 @@ Kubernetes는 다양한 배포 방식들을 지원하는데, 대표적으로 나
 
 - __Volume__ : Storage와 관련된 Object, Host Directory를 그대로 사용할 수도 있고, EBS 같은 Storage를 동적으로 생성하여 사용할 수도 있다.
 
-Object Spec은 YAML 형태로 구성되며, Object 종류와 원하는 상태를 입력한다. 생성, 조회, 삭제로 관리할 수 있기 때문에 RESTful API로 쉽게 노출할 수 있고, 접근 권한 설정도 같은 개념을 적용하여 누가 어떤 Object에 요청을 할 수 있는지도 정의할 수 있다.
+Object Spec은 __YAML__ 형태로 구성되며, Object 종류와 원하는 상태를 입력한다. 생성, 조회, 삭제로 관리할 수 있기 때문에 RESTful API로 쉽게 노출할 수 있고, 접근 권한 설정도 같은 개념을 적용하여 누가 어떤 Object에 요청을 할 수 있는지도 정의할 수 있다.
 
 Kubernetes는 Application을 배포하기 위해 _Desired State_ 를 다양한 Object에 __Label__ 을 붙여 정의하고 API Server에 전달한다.
 
