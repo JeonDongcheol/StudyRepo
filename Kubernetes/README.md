@@ -4,13 +4,14 @@
 > Kubernetes & Kubeflow 느낀점 : 설치만 잘해도 반은 먹고 들어가는 것 같다.
 
 ### Index :
+1. [__What is Kubernetes?__](#about_kubernetes)
 1. [__Kubernets Installation__](#install_k8s)
 2. [__Kubeflow Installation__](#install_kubeflow)
 3. [__Kubernetes Resource__](#k8s_resource)
 
 Ref. [**Kubernetes Useful Command**](#kubernetes_useful_cmd)
 
-# 1. Kubernetes Installation <a name="install_k8s" />
+# 2. Kubernetes Installation <a name="install_k8s" />
 > Kubernetes 설치하는 과정을 Command Line 위주로 서술한다.
 
 Kubernetes에 대한 개념은 이미 알고 있다고 가정을 하고 Kubernetes 구축 환경에 대해서 작성을 한다.
@@ -275,14 +276,14 @@ source ~/.bashrc
 
 --------------------
 
-# 2. Kubeflow Installation <a name="install_kubeflow" />
+# 3. Kubeflow Installation <a name="install_kubeflow" />
 > Kubeflow에 대한 설치 과정을 Command Line 위주로 작성한다. 아무래도 생각보다 어려운 작업이 아닌가 싶다.
 
 
 
 -------------------
 
-# 3. Kubernetes Resource <a name="k8s_resource" />
+# 4. Kubernetes Resource <a name="k8s_resource" />
 > Kubernetes에 대한 Resource를 간단하게 안내
 
 Kubernetes에서는 __Pod__ 를 설정하면서 Container에 필요한 Resource를 지정할 수가 있는데, 기본적으로 __CPU__ 와 __Memory(RAM)__ 를 지정할 수 있다. Resource 할당은 2개의 분류로 나누어서 할 수 있는데, 다음과 같다.
