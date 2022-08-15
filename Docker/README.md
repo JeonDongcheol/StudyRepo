@@ -57,7 +57,6 @@ __Layer 및 Union File System__ 을 기반으로 여러 개의 Layer를 하나�
 ------------------------------------
 
 # 3. Docker Install <a name="install_docker" />
-> Docker를 설치하고 기본적인 Image를 Build하고 Run하는 연습 및 Docker File 작성 Guide
 
 Docker를 설치하고 Image를 Build하는 Test를 진행한다. __AWS EC2 Cloud__ 에 __RedHet Enterprise Linux__ 를 올리고 그 위에 설치한다. 다른 환경에 대해서는 추후에 Guide를 해보려고 한다.
 
