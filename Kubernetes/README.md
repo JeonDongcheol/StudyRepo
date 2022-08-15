@@ -53,7 +53,37 @@ Kubernetes는 Application을 배포하기 위해 _Desired State_ 를 다양한 O
 
 ### Architecture
 
+![Alt Text][k8s_architecture]
 
+Kubernetes는 __Master__ 에 _API Server_ 와 _Status Storage_ 를 두고 각 __Node(Server)__ 와 __Agent(Kubelet)__ 와 통신하는 구조를 갖는다. 기본적으로 Node는 전체 Cluster를 _관리_ 하는 __Master__ 와 Container가 _배포_ 되는 __Worekr__ 로 구성이 되는데, 모든 명령은 Master의 _API Server_ 를 통해 호출하고 Worker는 Master와 통신하면서 필요한 작업들을 수행한다. 각각의 Node들은 IP Address를 가지며, Node들이 모여 Cluster를 구성하게 된다. 그래서 Kubernetes에서 포함 관계는 ```Contaiiner < Pod < Node(Master, Worker) < Cluster``` 라고 볼 수 있다.
+
+하나의 Pod가 생성되는 과정은 다음과 같이 표현할 수 있다.
+
+![Alt Text][pod_create_process]
+
+### Kubernetes Component
+> Kubernetes에서 중요한 역할을 수행하는 Component들에 대해서 간략하게만 서술한다.
+
+- __Ingress__ : 다양한 Web Application을 하나의 __Load Balancer__ 로 서비스하기 위해 사용하는데, _Proxy Server_ 는 _Domain_ 과 _Path_ 조건에 따라 등록된 Server로 요청을 전달하는데, Server가 바뀌거나 IP Address가 변경되면 매번 수정해야한다. Kubernetes에서는 이를 자동화하여 거의 그대로 사용이 가능하게 해준다.
+
+![Alt Text][ingress]
+
+- __Namespace__ & __Label__ : 하나의 Cluster를 _논리적_ 으로 구분해서 사용 가능하게 해준다.
+
+![Alt Text][namespace_and_label]
+
+- __RBAC(Role-Based Access Control)__ : 접근 권한 시스템으로, 각각의 _Resource_ 에 대하여 User 단위로 CRUD 같은 권한을 쉽게 지정 가능하게 해준다.
+
+![Alt Text][rbac]
+
+- __Cloud Support__ : 외부 Storage를 Container 내부 Directory에 Mount하여 사용하는 것도 일반적인데, _Cloud Controller_ 를 통해 Cloud와의 연동을 쉽게할 수 있도록 한다.
+
+- __CRD(Custom Resource Definition)__ : Kubernetes가 기본적으로 제공하지 않는 기능을 기본 기능과 동일한 방식으로 적용하고 사용 가능하게 해준다. _Kubeflow_ 에서도 여러 CRD가 존재한다.
+
+- __Auto Scaling__ : _CPU_ , _Memory_ 사용량에 딷른 확장 및 현재 접속자 수와 같은 값들을 사용 가능하다.
+  - _Horizontal Pod Autoscaler(HPA)_ : Container 개수를 조정
+  - _Vertical Pod Autoscaler(VPA)_ : Container Resource 할당량을 조정
+  - _Cluster Autoscaler(CA)_ : Server 개수 조정
 
 # 2. Kubernetes Installation <a name="install_k8s" />
 > Kubernetes 설치하는 과정을 Command Line 위주로 서술한다.
@@ -347,3 +377,8 @@ spec:
 [k8s_deployment]:https://imgur.com/AVVuwQi.png
 [k8s_desired_state]:https://imgur.com/D7RtHwT.png
 [pod_structure]:https://imgur.com/E8LcdJZ.png
+[k8s_architecture]:https://imgur.com/6cxacVO.png
+[pod_create_process]:https://imgur.com/wQikQok.png
+[ingress]:https://imgur.com/D7h3jhP.png
+[namespace_and_label]:https://imgur.com/QSBanW5.png
+[rbac]:https://imgur.com/BBM8uMM.png
