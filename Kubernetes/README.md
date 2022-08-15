@@ -4,17 +4,59 @@
 > Kubernetes & Kubeflow 느낀점 : 설치만 잘해도 반은 먹고 들어가는 것 같다.
 
 ### Index :
-1. [__What is Kubernetes?__](#about_kubernetes)
+1. [__What is Kubernetes?__](#about_k8s)
 1. [__Kubernets Installation__](#install_k8s)
 2. [__Kubeflow Installation__](#install_kubeflow)
 3. [__Kubernetes Resource__](#k8s_resource)
 
 Ref. [**Kubernetes Useful Command**](#kubernetes_useful_cmd)
 
+# 1. What is Kubernetes <a name="about_k8s" />
+> Kubernetes에 대한 개념을 잡아보자
+
+Kubernetes(a.k.a k8s)는 _Container_ 를 쉽고 빠르게 배포 및 확장하고 관리를 자동화해줄 수 있도록 하는 Open Source Platform으로, __MSA__ & __Cloud Platformm__ 을 지향하고 Container로 이루어진 Application을 손쉽게 담고 관리할 수 있도록 해준다. __Serverless__ , __CI/CD__ , __Machine Learning__ 등 다양한 기능들이 Kubernetes 위에서 동작 가능하다.
+
+Kubernetes는 다양한 배포 방식들을 지원하는데, 대표적으로 나열하자면 다음과 같다.
+
+- __Deployment__ : New Version Application을 다양한 전략을 통해 중단 없이 배포
+- __StatefulSets__ : 실행 순서를 보장하고 __Host Name__ 과 __Volume__ 을 일정하게 사용할 수 있어서, 순서 혹은 데이터가 중요한 경우 사용
+- __DaemonSets__ : _Log_ , _Monitoring_ 등 모든 Node에 설치가 필요한 경우
+- __Job__ , __CronJob__ : _Batch_ 성 작업
+
+![Alt Text][k8s_deployment]
+
+### Kubernetes Desired State
+
+![Alt Text][k8s_desired_state]
+
+- __Desired State__ : 관리자가 바라는 환경으로, 얼마나 많은 Web Server가 실행되고 있으면 좋은지, 몇 번 Port로 서비스하길 원하는지 등
+- __Current State__ : 현재 상태를 Monitoring하면서 Desired State를 유지하려고 내부적으로 여러 작업들을 수행함
+
+관리자가 Server를 배포할 때 직접적인 동작을 명령하지 않고 __State__ 를 선언하는 방식을 사용한다. 예를 들어서 Nginx Container를 실행하는데, 80번 Port로 Open(명령, Imperative) 한다는 명령어는 80번 Port를 Open한 Nginx Container를 1개 유지(선언, Declarative)해달라는 선언으로 한다고 보면 된다.
+
+### Object
+> Kubernetes에서 사용되는 Base Object로 매우 중요하다.
+
+- __Pod__ : Kubernetes에서 배포할 수 있는 __가장 작은 단위__ 로, 한 개 이상의 _Container, Storage, Network_ 속성을 가진다. Pod에 속한 Container는 Storage와 Network를 공유하고, 서로 Localhost로 접근이 가능하다. Container 하나만 사용하는 경우에도 반드시 Pod로 감싼다. Pod의 구조는 아래와 같다.
+
+![Alt Text][pod_structure]
+
+- __ReplicaSet__ : Pod를 여러 개(한 개 이상) 복제하여 관리하는 Object로, Pod를 생성하고 개수를 유지할 때 사용한다. 복제할 개수, 개수를 체크할 Label Selector, 생성할 Pod의 설정 값(Template) 등을 가지고 있다.
+
+- __Service__ : _Network_ 와 관련된 Object로, Pod를 외부 Network와 연결해주고, 여러 개의 Pod를 바라보는 내부 _Load Balancer_ 를 생성할 때 사용한다. 내부 __DNS__ 에 Service 이름을 Domain으로 등록하기 때문에 Service Discovery 역할도 수행한다.
+
+- __Volume__ : Storage와 관련된 Object, Host Directory를 그대로 사용할 수도 있고, EBS 같은 Storage를 동적으로 생성하여 사용할 수도 있다.
+
+Object Spec은 YAML 형태로 구성되며, Object 종류와 원하는 상태를 입력한다. 생성, 조회, 삭제로 관리할 수 있기 때문에 RESTful API로 쉽게 노출할 수 있고, 접근 권한 설정도 같은 개념을 적용하여 누가 어떤 Object에 요청을 할 수 있는지도 정의할 수 있다.
+
+Kubernetes는 Application을 배포하기 위해 _Desired State_ 를 다양한 Object에 __Label__ 을 붙여 정의하고 API Server에 전달한다.
+
+### Architecture
+
+
+
 # 2. Kubernetes Installation <a name="install_k8s" />
 > Kubernetes 설치하는 과정을 Command Line 위주로 서술한다.
-
-Kubernetes에 대한 개념은 이미 알고 있다고 가정을 하고 Kubernetes 구축 환경에 대해서 작성을 한다.
 
 개발 환경에 따라서 차이가 있을 수 있기 때문에 잘 참고해야 한다.
 
@@ -302,3 +344,6 @@ spec:
 
 
 [kubernetes_install_success]:https://imgur.com/APkDbp1.png
+[k8s_deployment]:https://imgur.com/AVVuwQi.png
+[k8s_desired_state]:https://imgur.com/D7RtHwT.png
+[pod_structure]:https://imgur.com/E8LcdJZ.png
