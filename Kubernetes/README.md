@@ -85,6 +85,14 @@ Kubernetes는 __Master__ 에 _API Server_ 와 _Status Storage_ 를 두고 각 __
   - _Vertical Pod Autoscaler(VPA)_ : Container Resource 할당량을 조정
   - _Cluster Autoscaler(CA)_ : Server 개수 조정
 
+### CNI(Container network Interface)
+
+Container 간의 _Networking_ 제어를 할 수 있는 _Plug-in_ 을 만들기 위한 표준으로, 공통된 Interface를 제공하기 위해 만들어졌으며, Kubernetes에서는 _Pod_ 간의 통신을 위해서 사용한다. Kubernetes 자체적으로 ```kubelet``` 이라는 CNI Plug-in을 제공하지만, Network 기능이 매우 제한적이어서 __Flannel, Calico, Weavenet, NSX__ 등의 _3rd Party_ CNI Plug-in 을 사용하기도 한다.
+
+![Alt Text][k8s_cni]
+
+-------------------------------------------------------------------
+
 # 2. Kubernetes Installation <a name="install_k8s" />
 > Kubernetes 설치하는 과정을 Command Line 위주로 서술한다.
 
@@ -382,3 +390,4 @@ spec:
 [ingress]:https://imgur.com/D7h3jhP.png
 [namespace_and_label]:https://imgur.com/QSBanW5.png
 [rbac]:https://imgur.com/BBM8uMM.png
+[k8s_cni]:https://imgur.com/LkegChr.png
