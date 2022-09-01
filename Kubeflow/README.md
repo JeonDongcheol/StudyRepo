@@ -9,8 +9,9 @@
 1. [__What is Kubeflow?__](#about_kubeflow)
 2. [__Kubeflow Installation__](#install_kubeflow)
 3. [__Kubeflow Multiuser Isolation__](#multiuser)
+4. [__Notebook - Jupyter__](#jupyter)
 
-# 2. Kubeflow Multiuser Isolation <a name="multiuser" />
+# 3. Kubeflow Multiuser Isolation <a name="multiuser" />
 > Kubeflow를 사용하는 과정에서 Multi User에 대한 설정을 안내한다. 이를 활용해서 Kubeflow 관련 작업을 할 때 계정을 구분 할 수 있지 않을까 싶다.
 
 Kubeflow에서 작업을 하다보면 User Account가 추가적으로 있으면 좋겠다는 생각을 할 때가 있다. 관련 프로젝트를 할 때 한 계정으로 작업하기엔 무리가 있고, 리소스를 계정 단위로 구분하고 싶을 때, Kubeflow에서는 Dex 기반의 __Multi User Isolation__ 을 적용한다. Kubeflow에서 계정을 추가로 할당하는 방법은 크게 3가지 단계를 거친다.
@@ -252,6 +253,9 @@ CUSTOM_OBJECT_API.create_cluster_custom_object(
 해당 Python Code는 참고하기 위한 Source이므로 알아서 바꿔 쓰도록 한다.
 
 ---------------------------------
+
+# 4. Notebook - Jupyter <a name="jupyter" />
+> Kubeflow Notebook에서 Jupyter Notebook에 대한 내용 (추후 다른 Notebook도 할 예정)
 
 #### Reference :
 - [Kubeflow v1.5](https://v1-5-branch.kubeflow.org/)
