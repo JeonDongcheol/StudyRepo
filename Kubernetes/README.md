@@ -1,7 +1,8 @@
 # Kubernetes
 > 공부한 내용 & 실습들을 정리
 > Index를 통해서 필요한 부분으로 이동할 수 있도록 해두었으니 참조
-> Kubernetes & Kubeflow 느낀점 : 설치만 잘해도 반은 먹고 들어가는 것 같다.
+> Kubernetes 느낀점 : 끝이 없다 정말...
+> Kubeflow 쪽이 생각보다 정리할 것이 많아서 22/09/01 기준으로 따로 분리
 
 ### Index :
 1. [__What is Kubernetes?__](#about_k8s)
