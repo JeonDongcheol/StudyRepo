@@ -610,7 +610,85 @@ Kubeflow 자체가 _MLOps_ 를 위한 것이기 때문에 대부분 GPU를 사�
 
 GPU를 할당하고 싶다면 Computing Resource에 GPU가 있어야 하며, 해당 Computer를 Cluster에 구성할 수 있어야 한다.
 
+NVIDIA GPU Resource를 사용하기 위해서 우선 __NVIDIA GPU Driver__ 를 설치해야한다. [GPU Driver 검색](https://www.nvidia.com/Download/index.aspx?lang=en-us) 에 가서 맞는 버전을 찾아서 다운받은 다음에 설치를 진행한다.
 
+Driver 설치 과정에서 다양한 오류들이 발생할 수도 있는데, (Nouveau 충돌 이슈, Kernerl Install 이슈 등...) 이 과정들은 구글링을 통해서 해결하는 것이 더 나을 것 같다. Driver 설치 후 __NVIDIA Docker 2.0__ 를 설치하는데, 과정은 다음과 같다.
+
+- Repository 및 GPG Key 설정
+
+```shell
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+      && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+      && curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+            sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+            sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+```
+
+- NVIDIA Docker 2.0 Install
+
+```shell
+sudo yum update
+sudo yum install -y nvidia-docker2
+```
+
+- NVIDIA Docker 2.0 설치가 정상적으로 끝나면 Docker의 ```Daemon.json``` 파일을 수정
+
+```shell
+# sudo vi /etc/docker/daemon.json
+{
+    "default-runtime": "nvidia",
+    "runtimes": {
+        "nvidia": {
+            "path": "/usr/bin/nvidia-container-runtime",
+            "runtimeArgs": []
+        }
+    }
+}
+
+sudo pkill -SIGHUP dockerd
+
+# Restart Docker
+sudo systemctl restart docker
+```
+
+작업을 마친 후 ```nvidia-smi``` 를 Terminal에 입력하면 다음과 같은 NVIDIA GPU Spec이 나온다.
+
+![Alt Text][nvidia-smi]
+
+이후 해당 Computer를 Node로 붙인 후 Kubernetes에서 NVIDIA GPU를 사용할 수 있게 _Master_ Node에서 __Kubernetes NVIDIA Device Plugin__ 을 설치해준다.
+
+```shell
+kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/1.0.0-beta4/nvidia-device-plugin.yml
+```
+
+GPU를 사용할 수 있도록 설정을 해주었으니, 이를 Pod에 할당해주면 된다.
+
+Pod 혹은 CRD에 할당하는 방법은 다음과 같이 Resource 선언 부분에서 _Requests_ 및 _Limits_ 에 정의해주면 되는데, 주의할 점은 Limit와 Request의 GPU 수를 __반드시__ 동일하게 맞춰주도록 한다.
+
+```yaml
+# GPU 스케줄링을 가져옴
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cuda-vector-add
+spec:
+  restartPolicy: OnFailure
+  containers:
+    - name: cuda-vector-add
+      # https://github.com/kubernetes/kubernetes/blob/v1.7.11/test/images/nvidia-cuda/Dockerfile
+      image: "k8s.gcr.io/cuda-vector-add:v0.1"
+      resources:
+        limits:
+          nvidia.com/gpu: 1
+  nodeSelector:
+    accelerator: nvidia-tesla-p100 # 또는 nvidia-tesla-k80 등.
+```
+
+여기서 __Node Selector__ 에 대한 설명을 간단하게 하자면 해당 GPU Node에 __Label__ (accelerator)을 달고, value를 본인이 구분할 수 있도록 GPU Model명을 달아주면, 추후에 다양한 GPU Model이 있을 때 Node Selector를 통해서 원하는 GPU Model을 할당할 수 있다. Kubeflow의 Notebook, Inference 등도 위와 같이 정의해주면 된다.
+
+참고로 Kubeflow Notebook의 생성 화면에서 GPU를 할당할 때 Plugin 설치가 되어있지 않으면 GPU Vendor가 없다고 나오며, GPU Node를 할당하지 않았거나 설정 과정에서 오류가 있어서 정상적으로 할당이 불가능하면 Pod가 생성되지 않는다. 가급적이면 Sample Pod로 올려보고 사용하는 것이 좋지 않을까 싶다.
+
+또한, AWS 및 타 Cloud Service 회사에서 GPU Resource를 이용하게 되면 비용이 꽤 많이 부가된다. 그래서 습관적으로 On/Off 할 수 있는 습관을 들이면 좋을 것 같다.
 
 #### Resource 부분은 배워갈 때마다 하나씩 추가하도록 한다.
 
@@ -642,3 +720,4 @@ GPU를 할당하고 싶다면 Computing Resource에 GPU가 있어야 하며, 해
 [rbac]:https://imgur.com/BBM8uMM.png
 [k8s_cni]:https://imgur.com/LkegChr.png
 [auth_get_all]:https://imgur.com/z29X5yr.png
+[nvidia-smi]:https://imgur.com/JomsaIy.png
