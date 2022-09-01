@@ -1,5 +1,5 @@
-/* NVIDIA Docker 2.0을 위한 Daemon.json */
 {
+    "_comment" : "NVIDIA Docker 2.0 설치 및 설정을 위한 daemon.json 으로, GPU가 있는 Node sudo vi /etc/docker/daemon.json을 수정",
     "default-runtime": "nvidia",
     "runtimes": {
         "nvidia": {
