@@ -39,4 +39,4 @@ Pytorch는 생각보다 번거로운 작업들이 필요했다. Model을 ```pt``
 
 만약 ```Handler``` , ```Model``` Code file을 정상적으로 작업했다면, 정상적으로 Serving이 될 것이다.
 
-TorchServe Github에 나와있는 __MNIST__ 를 기반으로 우선 Test를 해보았는데, GCS(Google Cloud Storage)에 있는 모델을 가져오는 것은 정상적으로 수행했으나, 해당 Model을 PVC(Persistent Volume Claim)에 올려서 Serving했을 때는 정상적으로 올라가지 않았다. 그 문제도 해결해보았다.
+TorchServe Github에 나와있는 __MNIST__ 를 기반으로 우선 Test를 해보았는데, GCS(Google Cloud Storage)에 있는 모델을 가져오는 것은 정상적으로 수행했으나, 해당 Model을 PVC(Persistent Volume Claim)에 올려서 Serving했을 때는 정상적으로 올라가지 않았다. 그 문제도 해결해보았다. [Pytorch MNIST Model Serving](https://github.com/JeonDongcheol/StudyMyWork/tree/main/KServe/Model%20Serving/MNIST)
