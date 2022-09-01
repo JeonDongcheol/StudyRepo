@@ -6,10 +6,10 @@
 
 ### Index :
 1. [__What is Kubernetes?__](#about_k8s)
-1. [__Kubernets Installation__](#install_k8s)
-2. [__Kubeflow Installation__](#install_kubeflow)
-3. [__Kubeflow Multiuser Isolation__](#multiuser)
-4. [__Kubernetes Resource__](#k8s_resource)
+2. [__Kubernets Installation__](#install_k8s)
+3. [__Kubeflow Installation__](#install_kubeflow)
+4. [__Kubeflow Multiuser Isolation__](#multiuser)
+5. [__Kubernetes Resource__](#k8s_resource)
 
 Ref. [**Kubernetes Useful Command**](#kubernetes_useful_cmd)
 
@@ -708,6 +708,7 @@ spec:
 
 #### Reference :
 - [Kubernetes Documents](https://kubernetes.io/ko/docs/home/)
+- [Kubernetes Github](https://github.com/kubernetes/kubernetes)
 - [Subicura Kubernetes 안내서](https://subicura.com/k8s/)
 
 [kubernetes_install_success]:https://imgur.com/APkDbp1.png
