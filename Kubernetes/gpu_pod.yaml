@@ -1,0 +1,26 @@
+# Pod뿐만 아니라, 다른 자원들도 가능
+# Resource 할당 부분만 참고하면 될 것 같다.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ${POD_NAME}
+spec:
+  containers:
+    - name: ${CONTAINER_NAME}
+      image: ${IMAGE_URL}
+      resources:
+        # Limits와 Reqeusts의 GPU 부분은 반드시 일치시킬 수 있도록 한다.
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+          # Number Of GPU Card
+          nvidia.com/gpu: 1
+        requests:
+          cpu: 250m
+          memory: 100Mi
+          # Number Of GPU Card
+          nvidia.com/gpu: 1
+      # Node Selector를 통한 GPU Model 선택
+      nodeSelector:
+        gpuModel: Tesla-T4
+  
