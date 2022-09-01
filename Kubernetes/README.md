@@ -479,5 +479,4 @@ spec:
 [namespace_and_label]:https://imgur.com/QSBanW5.png
 [rbac]:https://imgur.com/BBM8uMM.png
 [k8s_cni]:https://imgur.com/LkegChr.png
-[auth_get_all]:https://imgur.com/z29X5yr.png
 [nvidia-smi]:https://imgur.com/JomsaIy.png
