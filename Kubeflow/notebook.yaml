@@ -1,0 +1,49 @@
+# Notebook 생성 YAML : Case마다 다양하게 설정할 수 있으며, 꽤나 복잡하다.
+apiVersion: kubeflow.org/v1
+kind: Notebook
+metadata:
+  name: ${NOTEBOOK_NAME}
+  namespace: ${NAMESPACE}
+  labels:
+    app: ${NOTEBOOK_NAME}
+  annotations:
+    notebooks.kubeflow.org/server-type: ""
+spec:
+  template:
+    spec:
+      # Service Account는 여기서는 default-editor로 했었음
+      serviceAccountName: ${SERVICE_ACCOUNT}
+      containers:
+      - name: ${NOTEBOOK_NAME}
+        # AWS Notebook Image를 가져와서 Docker Private Repository에 저장했다.
+        # 그것을 가져왔음
+        image: ${IMAGE_URL}/${IMAGE_NAME}:${TAG}
+        imagePullPolicy: IfNotPresent
+        # Computing Resource
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+            # GPU 사용 : 제외해도 무방
+            nvidia.com/gpu: 1
+          requests:
+            cpu: 500m
+            memory: 1Gi
+            # GPU 사용 : 제외해도 무방
+            nvidia.com/gpu: 1
+        # Volume 부분은 꽤나 신경써주는 것이 좋을 것 같다.
+        volumeMounts:
+        - mountPath: /home/jovyan
+          name: ${PVC_NAME}
+      # GPU를 사용하는 경우 GPU Model을 맞춰서 선택하기 위해 Node Selector를 지정한다.
+      nodeSelector:
+        accelerator: ${LABEL_VALUE}
+      # 이 부분은 정확하게 모르겠음 사실...
+      securityContext:
+        runAsGroup: 400
+        runAsUser: 1000
+      # Volume 정의
+      volumes:
+      - name: ${PVC_NAME}
+        persistentVolumeClaim:
+          claimName: ${PVC_NAME}
