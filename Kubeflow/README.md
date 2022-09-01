@@ -252,3 +252,6 @@ CUSTOM_OBJECT_API.create_cluster_custom_object(
 해당 Python Code는 참고하기 위한 Source이므로 알아서 바꿔 쓰도록 한다.
 
 ---------------------------------
+
+
+[auth_get_all]:https://imgur.com/z29X5yr.png
