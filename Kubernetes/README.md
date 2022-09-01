@@ -603,6 +603,15 @@ spec:
 
 - Overcommit : Node 내의 Container 모든 Resource의 __Limit__ 합계가 Node 전체 Resource의 양을 초과한 상태로, Kubernetes는 Overcommit을 허용하는데, 보통 Node가 _Scale up_ 되어지거나, Pod가 삭제되고 다시 생성된다. 이때 Pod가 삭제되는 순서는 Resource 요청을 _가장 많이 초과한_ Pod부터 삭제된다.
 
+### GPU Resource
+> NVIDIA GPU
+
+Kubeflow 자체가 _MLOps_ 를 위한 것이기 때문에 대부분 GPU를 사용하게 될 것이다. 그래서 GPU를 사용하는 방법에 대해서 간단하게 서술하려고 한다. 흐름은 [Kubernetes - GPU 스케줄링](https://kubernetes.io/ko/docs/tasks/manage-gpus/scheduling-gpus/) 을 참조했으며, __AWS EC2 Instance__ 중에서 __G4dn.xlarge__ 을 기반으로 작업했다. (사실 돈 나가는 것이 무서워서 G4dn 했음...) G4dn은 __NVIDIA GPU Tesla T4__ 1개를 사용한다.
+
+GPU를 할당하고 싶다면 Computing Resource에 GPU가 있어야 하며, 해당 Computer를 Cluster에 구성할 수 있어야 한다.
+
+
+
 #### Resource 부분은 배워갈 때마다 하나씩 추가하도록 한다.
 
 ---------------------
