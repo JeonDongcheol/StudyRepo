@@ -22,6 +22,42 @@ ${MODEL_NAME}
 
 가장 헷갈리기 쉬운 것은 ```${NUMBER}``` 부분인데, 그냥 모델을 만들고 나서 아무렇게나 저장하면 Model을 정상적으로 Serving하지 않는다. 모델이 떨어진 directory 안에는 반드시 __Number__ 가 지정된 디렉토리가 있어야하며, 해당 하위 디렉토리에 모델이 저장되어있어야 한다.
 
+Model이 규격에 맞추어 정상적으로 만들어졌다면, Model을 Serving하는데, PVC에 저장되어있는 Model을 불러온다고 가정한 Inference YAML file이다.
+
+Test 했던 Model도 정리해두었다.
+
+- Test 목록 :
+
+1. [MobileNet](https://github.com/JeonDongcheol/StudyMyWork/tree/main/KServe/Model%20Serving/MobileNet)
+2. [DNN 기반 Image Classification](https://github.com/JeonDongcheol/StudyMyWork/tree/main/KServe/Model%20Serving/DNN_Image_Classification)
+
+Model Serving은 다음과 같이 정의했다.
+
+```yaml
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    # sidecar injection false를 설정하지 않으면 RBAC(Role Bind Access Control) Error가 발생한다.
+    sidecar.istio.io/inject: false
+  name: ${INFERENCE_NAME}
+  namespace: ${NAMESPACE}
+spec:
+  predictor:
+    tensorflow:
+      storageUri: "pvc://${PVC_NAME}/${MODEL_PATH}"
+    resources:
+      limits:
+        cpu: 500m
+        memory: 500Mi
+      requests:
+        cpu:300m
+        memory: 350Mi
+    # Runtime Version : 대부분은 Docker Hub에 있는 Image Tag를 말한다.
+    # Tensorflow Serving의 경우에는 docker.io/tensorflow/serving 의 Image를 가져온다.
+    runtimeVersion: 2.9.0
+```
+
 
 # Pytorch Serving (TorchServe)
 > TorchServe 기반의 Model Serving 과정에서의 기록
