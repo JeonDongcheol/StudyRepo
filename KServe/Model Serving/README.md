@@ -1,11 +1,7 @@
 # Model Serving
 > 다양한 Model을 Serving하고 이를 REST API Call 하는 작업들을 담았다.
 
-- Tensorflow DNN Image Classification
-- Tensorflow CNN MobileNet Image Classification
-- Scikit Learn Support Vector Machine(SVM)
-
-## Tensorflow Serving (TFServing)
+# Tensorflow Serving (TFServing)
 > Tensorflow 기반의 Model Serving 과정에서의 기록
 
 Tensorflow Model을 Serving하면서 부딪혔던 문제들에 대해서 간단하게 기록으로 남기고자 한다. (Model, Logic 같은 부분은 모름) [Tensorflow 공식 홈페이지]() 에 나온 Tutorial을 기반으로 Serving을 한 것이므로, 복잡한 설정은 하지 않았으며, 어떤 부분들을 신경써야하는지도 가이드를 해본다.
@@ -27,7 +23,7 @@ ${MODEL_NAME}
 가장 헷갈리기 쉬운 것은 ```${NUMBER}``` 부분인데, 그냥 모델을 만들고 나서 아무렇게나 저장하면 Model을 정상적으로 Serving하지 않는다. 모델이 떨어진 directory 안에는 반드시 __Number__ 가 지정된 디렉토리가 있어야하며, 해당 하위 디렉토리에 모델이 저장되어있어야 한다.
 
 
-## Pytorch Serving (TorchServe)
+# Pytorch Serving (TorchServe)
 > TorchServe 기반의 Model Serving 과정에서의 기록
 
 Pytorch는 생각보다 번거로운 작업들이 필요했다. Model을 ```pt``` file 혹은 ```pth``` file로 만들었다고 해도, 그것을 그대로 올리면 되는 것이 아니었다. (Tensorflow는 규격만 잘 맞추면 잘 올라갔다...) Pytorch를 TorchServe 기반으로 Serving하는 과정은 다음과 같다.
