@@ -3,7 +3,7 @@
 
 > 서투르다보니 다소 틀린 부분도 많은데 Feedback은 얼마든 환영
 
-> 22.08.15(Mon) Docker & K8s 작업
+> 22.09.01(Thur) K8s GPU Resource & Kubeflow Multiuser Isolation, Notebook 일부 작업
 
 ## Contents
 1. [__Docker__](./Docker)
