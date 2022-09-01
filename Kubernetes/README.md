@@ -317,11 +317,7 @@ source ~/.bashrc
 
 --------------------
 
-
-
--------------------
-
-# 5. Kubernetes Resource <a name="k8s_resource" />
+# 3. Kubernetes Resource <a name="k8s_resource" />
 > Kubernetes에 대한 Resource를 간단하게 안내
 
 Kubernetes에서는 __Pod__ 를 설정하면서 Container에 필요한 Resource를 지정할 수가 있는데, 기본적으로 __CPU__ 와 __Memory(RAM)__ 를 지정할 수 있다. Resource 할당은 2개의 분류로 나누어서 할 수 있는데, 다음과 같다.
