@@ -7,7 +7,7 @@
 1. [__What is Kubernetes?__](#about_k8s)
 1. [__Kubernets Installation__](#install_k8s)
 2. [__Kubeflow Installation__](#install_kubeflow)
-3. [__Kubeflow Multiuser Isoloation__](#multiuser)
+3. [__Kubeflow Multiuser Isolation__](#multiuser)
 4. [__Kubernetes Resource__](#k8s_resource)
 
 Ref. [**Kubernetes Useful Command**](#kubernetes_useful_cmd)
@@ -472,7 +472,93 @@ status:
 
 ### 3. Usage in Python
 
-이 모든 것을 Kernel 환경에서 하기엔 다소 무리가 있다. (결국 어떤 개발 언어 속에서 작업을 할 것이기 때문이다.) Python에서 작업할 때는 Kubernetes SDK를 활용해서 ConfigMap을 수정하고 Deployment를 재시작해주면서 Profile을 자동으로 시작하게 해주면 될 것 같다.
+이 모든 것을 Kernel 환경에서 하기엔 다소 무리가 있다. (결국 어떤 개발 언어 속에서 작업을 할 것이기 때문이다.) Python에서 작업할 때는 Kubernetes SDK를 활용해서 ConfigMap을 수정하고 Deployment를 재시작해주면서 Profile을 자동으로 시작하게 해주면 될 것 같다. 내가 작업했던 코드를 일부 공유하자면 아래와 같다.
+
+```python
+from kubernetes import config, client
+from bcrypt import hashpw, gensalt
+
+# Kubernetes Config File Load
+config.load_kube_config()
+
+# Kubernetes Client SDK API 정의
+CUSTOM_OBJECT_API = client.CustomObjectsApi()
+CORE_V1_API = client.CoreV1Api()
+APPS_V1_API = client.AppsV1Api()
+
+# Kubeflow Profile, Dex ConfigMap 수정 과정에서 필요한 것들
+GROUP = "kubeflow.org"
+VERSION = "v1"
+PLURAL = "profiles"
+KIND = "Profile
+
+"""
+일부 코드는 생략(Skip) 했다.
+코드는 Python 기반의 Pseudo Code이며,
+정확하게 사용하기 위해서는 본인 입맛에 맞출 수 있도록 한다.
+"""
+
+# Email을 기반으로 Namespace 할당
+namespace = str(data.get("email")).split("@")[0]
+
+# Dex Configmap에 들어갈 Password Hash 값을 만들기 위한 작업
+# Password를 UTF-8로 Encoding -> Hash 값으로 나온 Password를 UTF-8로 다시 Decoding
+# Salt는 Hash를 만들 때 적용하는 규칙이라고 보면 되는데, 궁금하면 검색
+password = hashpw(
+  password = data.get("password").encode("utf-8"),
+  salt=gensalt(rounds=10)).decode("utf-8")
+)
+
+# ConfigMap에 사용자를 추가하기 위한 Format 정의
+multiuser_format = (
+  "-email: " + data.get("email") +
+  "\n  hash: " + password +
+  "\n  username: " + data.get("username"),
+  "\n  userID: " + namespace
+)
+
+# Dex Configmap의 config.yaml 할당 : ConfigMap YAML에서 config.yaml은 data 안에 들어있기 때문이며, String형태로 저장될 것이다.
+dex_configmap_config_yaml = CORE_V1_API.read_namespaced_config_map(name="dex", namespace="auth").data.get("config.yaml")
+
+# 이 부분은 사실 알아서 정의해준다. 좋은 방법이 있으면 그걸로 하면 된다.
+# staticPasswords 다음에 staticClients가 왔기 때문에 이를 기점으로 나눠서 추가하고 다시 붙여주었다.
+dex_configmap_config_yaml = (
+  dex_configmap_config_yaml.split("staticClients:")[0] +
+  multiuser_format +
+  "\nstaticClients:" +
+  dex_configmap_config_yaml.split("staticClients:")[1]
+)
+
+# 재정의했던 config.yaml을 기존의 ConfigMap에 덮어써준다.
+CORE_V1_API.patch_namespaced_config_map(
+  name="dex",
+  namespace="auth",
+  body={"data" : {"config.yaml" : dex_configmap_config_yaml}}
+)
+
+# Deployment 재시작 : Dex Deployment의 annotation 중 kubectl.kubernetes.io/restartedAt 의 시간을 현재 시간으로 바꿈으로써 재시작해줄 수 있다.
+now = str(datetime.datetime.utcnow().isoformat("T") + "Z")
+APPS_V1_API.patch_namespaced_deployment(name="dex", namespace="auth", body={
+  "spec" : {"template": {"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": now}}}}
+})
+
+# 이제 Profile 생성
+kubeflow_user_email = data.get("email")
+# Profile은 Kubeflow의 Resource이므로 이는 Custom Resource가 된다.
+CUSTOM_OBJECT_API.create_cluster_custom_object(
+  group = GROUP,
+  version = VERSION,
+  plural = PLURAL,
+  body = {
+    "apiVersion" : GROUP + "/" + VERSION,
+    "kind" : KIND,
+    "metadata" : {"name" : namespace},
+    "spec" : {"owner" : {"kind" : "User", "name" : kubeflow_user_email}}
+  }
+)
+```
+
+해당 Python Code는 참고하기 위한 Source이므로 알아서 바꿔 쓰도록 한다.
 
 -------------------
 
