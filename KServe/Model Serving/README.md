@@ -18,7 +18,7 @@ Tensorflow Model Save 과정에서 _Keras_ 를 이용하는 방법이 있고, _S
 ```
 ${MODEL_NAME}
 --- ${NUMBER}
-     --- aseets
+     --- assets
      --- ${MODEL}.pb
      --- variables
          --- variables.index
@@ -83,6 +83,53 @@ Pytorch는 생각보다 번거로운 작업들이 필요했다. Model을 ```pt``
 TorchServe Github에 나와있는 __MNIST__ 를 기반으로 우선 Test를 해보았는데, GCS(Google Cloud Storage)에 있는 모델을 가져오는 것은 정상적으로 수행했으나, 해당 Model을 PVC(Persistent Volume Claim)에 올려서 Serving했을 때는 정상적으로 올라가지 않았다. 그 문제도 해결해보았다. [Pytorch MNIST Model Serving](https://github.com/JeonDongcheol/StudyMyWork/tree/main/KServe/Model%20Serving/MNIST)
 
 TorchServe Github에 나와있는 Handler 및 Model file python code로 Serving을 하게 되면 __500 Internal Server__ Error가 발생했다. 구조를 뜯어보니 Handler와 Model Code 일부가 누락되거나 잘못된 부분이 있어서 그런 것이었다. 그래서 내 기준 정상적으로 동작했을 때의 코드를 올렸다.
+
+- Handler : ```mnist_handler.py```
+- Model File : ```mnist.py```
+- Model pt File : ```mnist.pt```
+
+3개의 File을 기반으로 MAR 파일을 생성해준다. PVC 사용하는 사람을 위한 Auto Archiver도 있었지만, 일단 Jupyter Notebook에서 ```pip3 install torch-model-archiver``` 를 수행하고 Model을 압축했다.
+
+```shell
+# MNIST Model Archive
+torch-model-archiver --model-name ${MODEL_NAME} --version 1.0 --model-file ${PATH}/mnist.py --serialized-file ${PATH}/mnist_cnn.pt --handler ${PATH}/mnist_handler.py
+```
+
+위에서 언급했던대로, Serving Model의 Architecture는 다음과 같다.
+
+```
+${DIRECTORY_NAME}
+   --- config
+       --- config.properties
+   --- model-store
+       --- ${MODEL_NAME}.mar
+```
+
+해당 Model을 Serving하는 YAML file 구조는 다음과 같다.
+
+```yaml
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    sidecar.istio.io/inject: 'false'
+  name: ${INFERENCE_NAME}
+  namespace: ${NAMESPACE}
+spec:
+  predictor:
+    pytorch:
+      # Resource는 알아서 할당
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1Gi
+        requests:
+          cpu: 250m
+          memory: 500Mi
+      storageUri: pvc://${PVC_NAME}/${PATH}
+```
+
+Model이 정상적으로 올라가면, Prediction을 수행하는데, 주의할 점은 TorchServe의 경우에는 ```model-store``` 안에 여러 개의 Model이 들어갈 수 있다. 그래서 Prediction REST API가 반드시 __${MODEL_NAME}__ 으로 지정되어야 한다. ${INFERENCE_NAME} 으로 endpoint를 주게 되면 이상한 결과를 보게 될 것이다.
 
 #### Reference:
 
