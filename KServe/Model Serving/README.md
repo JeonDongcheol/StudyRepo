@@ -81,3 +81,5 @@ Pytorch는 생각보다 번거로운 작업들이 필요했다. Model을 ```pt``
 만약 ```Handler``` , ```Model``` Code file을 정상적으로 작업했다면, 정상적으로 Serving이 될 것이다.
 
 TorchServe Github에 나와있는 __MNIST__ 를 기반으로 우선 Test를 해보았는데, GCS(Google Cloud Storage)에 있는 모델을 가져오는 것은 정상적으로 수행했으나, 해당 Model을 PVC(Persistent Volume Claim)에 올려서 Serving했을 때는 정상적으로 올라가지 않았다. 그 문제도 해결해보았다. [Pytorch MNIST Model Serving](https://github.com/JeonDongcheol/StudyMyWork/tree/main/KServe/Model%20Serving/MNIST)
+
+TorchServe Github에 나와있는 Handler 및 Model file python code로 Serving을 하게 되면 __500 Internal Server__ Error가 발생했다. 구조를 뜯어보니 Handler와 Model Code 일부가 누락되거나 잘못된 부분이 있어서 그런 것이었다. 그래서 내 기준 정상적으로 동작했을 때의 코드를 올렸다.
