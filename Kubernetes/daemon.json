@@ -1,0 +1,10 @@
+/* NVIDIA Docker 2.0을 위한 Daemon.json */
+{
+    "default-runtime": "nvidia",
+    "runtimes": {
+        "nvidia": {
+            "path": "/usr/bin/nvidia-container-runtime",
+            "runtimeArgs": []
+        }
+    }
+}
