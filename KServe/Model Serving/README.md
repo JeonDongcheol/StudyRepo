@@ -63,6 +63,9 @@ spec:
     runtimeVersion: 2.9.0
 ```
 
+추가적인 문제 사항으로는 ```signature_name``` 이 설정되어 있지 않으면 default로 찾는데, 그것도 지정되어있지 않는 Model도 있었다. 설정되어 있지 않으면 signature name은 반드시 확인해보도록 한다.
+
+------------------------
 
 # Pytorch Serving (TorchServe) <a name="torchserve" />
 > TorchServe 기반의 Model Serving 과정에서의 기록
@@ -137,4 +140,6 @@ Model이 정상적으로 올라가면, Prediction을 수행하는데, 주의할 
 
 #### Reference:
 
+- [Tensorflow Serving : DNN Image Classification](https://www.tensorflow.org/guide/saved_model)
+- [Tensorflow Serving : MobileNet](https://www.tensorflow.org/tutorials/keras/classification)
 - [TorchServe Github - MNIST](https://github.com/pytorch/serve/tree/master/examples/image_classifier/mnist)
