@@ -4,7 +4,7 @@
 ### Index :
 1. [__Tensorflow Serving__](#tfserving)
 2. [__TorchServe__](#torchserve)
-3. [__Scikit Learn Server_](#sklearn_server)
+3. [__Scikit Learn Server__](#sklearn_server)
 
 # Tensorflow Serving (TFServing) <a name="tfserving" />
 > Tensorflow 기반의 Model Serving 과정에서의 기록
