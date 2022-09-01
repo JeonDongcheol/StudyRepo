@@ -1,0 +1,12 @@
+# Profile을 생성하면 자동으로 Namespace도 Name에 맞추어 생성
+apiVersion: kubeflow.org/v1
+kind: Profile
+metadata:
+  name: ${PROFILE_NAME}
+spec:
+  owner:
+    kind: User
+    # Dex Configmap에서 추가한 계정의 Email Address를 넣는다.
+    name: ${EMAIL}
+  # 자원 한정
+  resourceQuotaSpec: {}
