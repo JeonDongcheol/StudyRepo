@@ -334,7 +334,7 @@ Kubeflow에서 작업을 하다보면 User Account가 추가적으로 있으면 
 
 Kubeflow의 컴포넌트를 낱개로 설치한 것이 아닌 전체를 설치했다고 가정했을 때, __Dex__ 가 설치된다. Dex를 통해서 사용자 인증을 하게 되는데, Kubeflow Central Dashboard의 로그인도 Dex 인증을 타게 된다. 기본적으로 Dex는 _Auth_ Namespace에 할당되어있는데, Auth Namespace가 갖고 있는 자원은 아래와 같다. (Command : ```kubectl get all -n auth``` )
 
-![Alt Text][dex_get_all]
+![Alt Text][auth_get_all]
 
 또한 Dex ConfigMap은 ```kubectl get configmap -n auth``` 를 통해서 있는지 확인할 수 있다. Dex ConfigMap은 다음과 같이 구성이 되어있다.
 
