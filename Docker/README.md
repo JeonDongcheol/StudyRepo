@@ -6,7 +6,7 @@
 2. [__What is Docker?__](#what_is_docker)
 3. [__Docker Install & Base Command__](#install_docker)
 4. [__Dockerfile__](#dockerfile)
-5. [__Docker Command__](#dockercommand)
+5. [__Docker Image Push & Pull__](#docker_push_pull)
 
 # 1. Container Environment <a name="container_env" />
 > Docker를 알기 전에 Container 개발 환경에 대해서 먼저 공부한다.
@@ -227,17 +227,33 @@ docker logs <Image_ID>
 ----------------
 
 # 5. Docker Image Push & Pull <a name="docker_push_pull" />
-> Docker를 사용하면서 필요한 Command 정리
+> 원격에서 Docker Image를 Pull & Push 하는 작업에 대해서 정리한다.
 
-Docker를 사용하면서 Image를 __Docker Hub__ 뿐만 아니라, 다른 Registry에서도 Image를 가져올 때가 있다. 그 때를 대비해서 어떻게 Image를 가져오고, 또 다른 Private Registry로 어떻게 보내는지를 대략 정리해본다.
+Docker를 사용하면서 Image를 __Docker Hub__ 뿐만 아니라, 다른 Registry에서도 Image를 가져올 때가 있다. 그 때를 대비해서 어떻게 Image를 가져오고, 또 다른 _Private Registry_ 로 어떻게 보내는지를 대략 정리해본다.
 
-Docker Image를 가져오는 Command는 ```docker pull ${IMAGE}:${TAG}``` 를 사용한다. 기본적으로 Registry에서 Image Pulling을 할 때 Default는 Docker Hub로 지정되는데, 이 때는 별도의 Docker Hub에 대한 지정을 하지 않고 Image 이름 및 태그를 지정해주면 된다. Docker Hub에서 Pulling을 하게 되면 다음과 같이 Image를 다운받고 올라간다.
+Docker Image를 가져오는 Command는 ```docker pull ${IMAGE}:${TAG}``` 를 사용한다. 기본적으로 Registry에서 Image Pulling을 할 때 Default는 [Docker Hub](https://hub.docker.com/)로 지정되는데, 이 때는 별도의 Docker Hub에 대한 지정을 하지 않고 Image 이름 및 태그를 지정해주면 된다. Docker Hub에서 Pulling을 하게 되면 다음과 같이 Image를 다운받고 올라간다.
 
 ![Alt Text][docker_pull_from_docker_hub]
 
 Local Registry의 Docker Image는 ```docker images``` 혹은 ```docker image ls``` 로 조회할 수 있다. 위의 이미지와 같이 Docker Image가 정상적으로 올라간 것을 확인할 수 있다.
+  
+반대로 _Local_ 에서 작업을 해서 만든 Docker Image를 _Remote_ 로 __Push__ 하고 싶을 때가 있다. Docker Hub의 _Public/Private Registry_ 가 될 수도 있고, 다른 _Registry_ 가 될 수도 있다. 여기서는 다른 Registry로 Image를 Push하는 방법에 대해서 안내한다.
 
+Docker Image를 Push하는 Command는 ```docker push ${IMAGE}:${TAG}``` 를 사용하는데, 이전에 먼저 어디로 Push할 것인지에 대한 __Target__ 을 지정해주어야 한다. ```docker tag ${IMAGE}:${TAG} ${TARGET_URL}/${IMAGE}:${TAG}``` Command를 수행하게 되면, Docker Image를 Push하기 위한 Image가 따로 만들어진다. ```Tag``` 명령어를 통해 Image를 만들어주면 해당 조합을 통해 생성된 Image를 볼 수 있으며, 이를 Push 해주면 된다. 정상적으로 Push가 되면 다음과 같은 화면이 나온다. (많은 것들이 가려져 있긴하다.)
+  
+![Alt Text][docker_push_to_private_reg]
+  
+Docker Image를 Registry에 올리고 나면 Local의 Image는 필요가 없어지는데, 이는 Image 삭제를 통해 정리해주면 된다. 만약 Image를 사용하는 Local Container가 있다면, 정상적으로 삭제가 되지 않으니, 이를 먼저 제거해주고 작업해주면 된다.
+  
+```shell
+docker rmi ${IMAGE}:${TAG}
+```
+
+![Alt Text][docker_image_remove]
+  
 [container_and_virtual]:https://imgur.com/ApjrMir.png
 [docker_layer]:https://imgur.com/40RPTyl.png
 [docker_build]:https://imgur.com/0fH7P3E.png
 [docker_pull_from_docker_hub]:https://imgur.com/DC5n9u5.png
+[docker_push_to_private_reg]:https://imgur.com/eJ3KWFQ.png
+[docker_image_remove]:https://imgur.com/HvM8muL.png
