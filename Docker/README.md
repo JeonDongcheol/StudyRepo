@@ -6,6 +6,7 @@
 2. [__What is Docker?__](#what_is_docker)
 3. [__Docker Install & Base Command__](#install_docker)
 4. [__Dockerfile__](#dockerfile)
+5. [__Docker Command__](#dockercommand)
 
 # 1. Container Environment <a name="container_env" />
 > Docker를 알기 전에 Container 개발 환경에 대해서 먼저 공부한다.
@@ -223,6 +224,20 @@ docker run -d -p 8000:8000 <USER_NAME>/<IMAGE_NAME>:<TAG>
 docker logs <Image_ID>
 ```
 
+----------------
+
+# 5. Docker Image Push & Pull <a name="docker_push_pull" />
+> Docker를 사용하면서 필요한 Command 정리
+
+Docker를 사용하면서 Image를 __Docker Hub__ 뿐만 아니라, 다른 Registry에서도 Image를 가져올 때가 있다. 그 때를 대비해서 어떻게 Image를 가져오고, 또 다른 Private Registry로 어떻게 보내는지를 대략 정리해본다.
+
+Docker Image를 가져오는 Command는 ```docker pull ${IMAGE}:${TAG}``` 를 사용한다. 기본적으로 Registry에서 Image Pulling을 할 때 Default는 Docker Hub로 지정되는데, 이 때는 별도의 Docker Hub에 대한 지정을 하지 않고 Image 이름 및 태그를 지정해주면 된다. Docker Hub에서 Pulling을 하게 되면 다음과 같이 Image를 다운받고 올라간다.
+
+![Alt Text][docker_pull_from_docker_hub]
+
+Local Registry의 Docker Image는 ```docker images``` 혹은 ```docker image ls``` 로 조회할 수 있다. 위의 이미지와 같이 Docker Image가 정상적으로 올라간 것을 확인할 수 있다.
+
 [container_and_virtual]:https://imgur.com/ApjrMir.png
 [docker_layer]:https://imgur.com/40RPTyl.png
 [docker_build]:https://imgur.com/0fH7P3E.png
+[docker_pull_from_docker_hub]:https://imgur.com/DC5n9u5.png
