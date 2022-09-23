@@ -459,6 +459,7 @@ spec:
 - 특정 Pod Shell Script 접속 : ```kubectl exec --stdin --tty -n ${NAMESPACE} ${POD_NAME} -- /bin/bash```
 - Kubernetes Defualt Namespace 설정 : ```kubectl config set-context --current --namespace=${NAMESPACE}```
 - Persistant Volume Claim(PVC) State가 'Terminating' 상태로 남아있을 때 삭제하는 방법 : ```kubectl patch pvc -n ${NAMESPACE} ${PVC_NAME} -p '{"metadata": {"finalizers": null}}'```
+- Kubernetes Node/Pod 상태 체크 : ```kubectl top node(pod) ${NODE_NAME}(-n ${NAMESPACE} ${POD_NAME})```
 
 #### Reference :
 - [Kubernetes Documents](https://kubernetes.io/ko/docs/home/)
