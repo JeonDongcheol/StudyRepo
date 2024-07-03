@@ -22,3 +22,17 @@ spec:
         "gateway": "192.168.1.1"
       }
     }'
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multu-sample-pod
+  namespace: default
+  # 2개 이상을 잡고 싶다면, ','로 구분해서 network attachment definition 이름을 넣음
+  annotations:
+    k8s.v1.cni.cncf.io/networks: macvlan-conf
+spec:
+  containers:
+  - name: samplepod
+    command: ["/bin/ash", "-c", "trap : TERM INT; sleep infinity & wait"]
+    image: alpine
