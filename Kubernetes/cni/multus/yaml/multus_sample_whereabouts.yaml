@@ -1,0 +1,102 @@
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: macvlan-whereabouts-net-attach-def
+  namespace: redhet-demo
+spec:
+  # Type : MacVLAN CNI Plugin 사용
+  # Whereabouts CNI Plugin은 IPAM CNI Plugin에 속함
+  # Range : Pod에 할당할 IP Pool
+  config: '{
+            "cniVersion": "0.3.1",
+            "type": "macvlan",
+            "master": "eth0",
+            "mode": "bridge",
+            "ipam": {
+                "type": "whereabouts",
+                "range": "10.2.130.0/24"
+            }
+        }'
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: macvlan-whereabouts-svc
+  namespace: redhet-demo
+  annotations:
+    k8s.v1.cni.cncf.io/service-network: macvlan-whereabouts-net-attach-def
+spec:
+  selector:
+    app: macvlan-whereabouts
+  ports:
+  - protocol: TCP
+    port: 80
+---
+# 아무렇게나 구성해도 상관 없음
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: macvlan-whereabouts-configmap
+  namespace: redhet-demo
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <body>
+    This is multus-nginx-macvlan!
+    </body>
+    </html>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: macvlan-whereabouts-deploy
+  namespace: redhet-demo
+spec:
+  selector:
+    matchLabels:
+      app: macvlan-whereabouts
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: macvlan-whereabouts
+      annotations:
+        # Network Attachment Definition Name 설정
+        k8s.v1.cni.cncf.io/networks: '[
+            { "name": "macvlan-whereabouts-net-attach-def" } ]'
+    spec:
+      # Container는 상황에 맞추어 다시 설정해야할 것 같음
+      containers:
+      - name: multus-nginx
+        image: ghcr.io/redhat-nfvpe/multus-service-demo:fedora-nginx
+        ports:
+        - containerPort: 80
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: macvlan-whereabouts-configmap
+      volumes:
+        - name: macvlan-whereabouts-configmap
+          configMap:
+            name: macvlan-whereabouts-configmap
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: macvlan-whereabouts-client
+  namespace: redhet-demo
+  # Network Attachment Definition Annotation 설정
+  annotations:
+    k8s.v1.cni.cncf.io/networks: '[ { "name": "macvlan-whereabouts-net-attach-def" } ]'
+spec:
+  containers:
+  - name: macvlan-whereabouts-client
+    image: ghcr.io/redhat-nfvpe/multus-service-demo:fedora-tools
+    imagePullPolicy: Always
+    command:
+    - /sbin/init
+    securityContext:
+      privileged: true
