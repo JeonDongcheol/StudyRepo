@@ -1160,11 +1160,11 @@ spec:
 
 - AWS EC2 페이지에서 **[Network & Security]** → **[Network Interface]** 탭으로 이동
 
-![move network interface tab](move_ni.png)
+![move network interface tab](img/move_ni.png)
 
 - **[Create New Network Interface]** 버튼 클릭
 
-![click create network interface](click_ni.png)
+![click create network interface](img/click_ni.png)
 
 - Network Interface 생성 설정 입력
     - Description[Optional] : Network Interface에 대한 간단한 설명
@@ -1175,23 +1175,23 @@ spec:
     - Elastic Fabric Adapter : 고성능 네트워크 설정으로, 사용하지 않음
     - Security Group : Network Interface에 할당해줄 Security Group
 
-![set network interface](set_ni.png)
+![set network interface](img/set_ni.png)
 
 ### 2. EC2 Instance에 새롭게 생성한 Network Interface 추가
 
 - 실행 중(Running)인 Instance 상태 **중지(Stopping)**로 전환
 
-![add network interface to ec2_1](add_ni_to_ec2_1.png)
+![add network interface to ec2_1](img/add_ni_to_ec2_1.png)
 
 - 다시 Network Interface 탭으로 이동
 - 추가(Attach) 할 Network Interface 선택 후 **[작업]** → **[연결(Attach)]** 클릭
 
-![add network interface to ec2_2](add_ni_to_ec2_2.png)
+![add network interface to ec2_2](img/add_ni_to_ec2_2.png)
 
 - Instance 선택에서 Network Interface 추가할 Instance 선택 후 연결
     - 만약 EC2 Instance 삭제(종료, Terminating) 후 해당 Network Interface도 자동 삭제하게 하려면 Network Interface 탭에서 **[작업]** → **[종료 동작 변경]** **활성화**
 
-![add network interface to ec2_3](add_ni_to_ec2_3.png)
+![add network interface to ec2_3](img/add_ni_to_ec2_3.png)
 
 - EC2 Instance 다시 시작 후 SSH 접속
 - Network Configuration Check **(ERROR)**
@@ -1293,11 +1293,11 @@ kubectl exec -it -n dcjeon ${POD_NAME} -- ip a
 - ifconfig & ip a 결과
     - Network Interface : eth0(Calico CNI), net1(Multus CNI → Whereabouts CNI)
 
-![ifconfig result](check_ifconfig.png)
+![ifconfig result](img/check_ifconfig.png)
 
 - ping test 결과
 
-![ping_result](check_ping.png)
+![ping_result](img/check_ping.png)
 
 - Sample Pod YAML Description
     
