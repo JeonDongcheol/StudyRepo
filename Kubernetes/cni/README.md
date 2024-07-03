@@ -5,13 +5,13 @@
 
 **CNI(Container Network Interface)** : 컨테이너 간 네트워킹을 제어할 수 있는 플러그인을 만들기 위한 표준
 
-→ 컨테이너 런타임을 포함하고 있는 Kubernetes도 이미 Network Interface로 **kubenet**이라는 CNI 존재
+→ 컨테이너 런타임을 포함하고 있는 Kubernetes도 이미 Network Interface로 **kubenet** 이라는 CNI 존재
 
 ---
 
-[Whereabouts](https://www.notion.so/Whereabouts-3f3c855dc1574da9bd264017e9ee51e6?pvs=21)
+[Whereabouts](./whereabouts/README.md)
 
-[Multus CNI](https://www.notion.so/Multus-CNI-088dce62685c41ad98fdb570be0dd574?pvs=21)
+[Multus CNI](./multus/README.md)
 
 # 배경
 
@@ -31,7 +31,6 @@
 # 3rd Party Plugin
 
 > 특정 서비스에 맞는 기능 구현을 위한 CNI 기반 추가 기능 개발 및 서비스 적용을 위한 3rd party plugin
-> 
 
 ## 3rd Party Plugin의 종류
 
@@ -47,7 +46,7 @@
 
 ## CNI Plugin Network Model
 
-Container 및 Node 간 통신을 중개할 때 사용하는 **Network Model**을 어떤 것을 사용하는지에 따라 분류
+Container 및 Node 간 통신을 중개할 때 사용하는 **Network Model** 을 어떤 것을 사용하는지에 따라 분류
 
 - CNI Plugin이 사용하는 Network Model
     1. **Overlay Network Model** : VXLAN(Virtual Extensible LAN) 혹은 IP-in-IP Protocol 사용
@@ -55,9 +54,9 @@ Container 및 Node 간 통신을 중개할 때 사용하는 **Network Model**을
 
 ### 1. Overlay Network Model
 
-실제로는 복잡할 수도 있는 **Endpoint 간의 Network 구조를 추상화**하여 **Network 통신 경로를 단순화**하는 것
+실제로는 복잡할 수도 있는 **Endpoint 간의 Network 구조를 추상화** 하여 **Network 통신 경로를 단순화** 하는 것
 
-**3계층 이상**으로 구축된 네트워크 간에 있는 Endpoint의 Node 간의 통신이 일어날 때 패킷을 한겹 **캡슐화(Encapsulation)**한 뒤 통신시켜서, **2계층(같은 LAN)에서 통신이 일어나는 것처럼 통신**할 수 있도록 함
+**3계층 이상** 으로 구축된 네트워크 간에 있는 Endpoint의 Node 간의 통신이 일어날 때 패킷을 한겹 **캡슐화(Encapsulation)** 한 뒤 통신시켜서, **2계층(같은 LAN)에서 통신이 일어나는 것처럼 통신** 할 수 있도록 함
 
 ![overlay_network](img/overlay_network.png)
 
@@ -100,7 +99,7 @@ BGP Network Model
 # CNI Configuration
 
 > Multus Github의 CNI Configuration 설명 기반
-> 
+
 - CNI Configuration Sample
 
 ```json
@@ -113,7 +112,7 @@ BGP Network Model
 
 - CNI Configuration 구성 요소(지속적인 Update 필요)
     - **cniVersion** : 사용하는 CNI Plugin의 버전 정보
-    - **type** : Disk에서 부를 CNI Plugin Binary, **/opt/cni/bin**에 위치
+    - **type** : Disk에서 부를 CNI Plugin Binary, **/opt/cni/bin** 에 위치
     - **additional** : CNI Plugin에 따라 구성하는 Configuration Parameter로, Type에 따라 다양함
         - additional이라는 필드가 존재하는 것이 아니라, 추가적인 필드가 들어온다는 의미
 - CNI Configuration Examples
