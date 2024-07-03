@@ -59,7 +59,7 @@ Container 및 Node 간 통신을 중개할 때 사용하는 **Network Model**을
 
 **3계층 이상**으로 구축된 네트워크 간에 있는 Endpoint의 Node 간의 통신이 일어날 때 패킷을 한겹 **캡슐화(Encapsulation)**한 뒤 통신시켜서, **2계층(같은 LAN)에서 통신이 일어나는 것처럼 통신**할 수 있도록 함
 
-![Untitled](CNI%2083416d835a3f46489399276f3e80eb63/Untitled.png)
+![overlay_network](img/overlay_network.png)
 
 **Calico** 기준으로 2가지 방식의 Overlay Network 지원
 
@@ -75,7 +75,7 @@ Overlay Network Model 특징
 
 통신이 발생하는 Node 간에 BGP를 사용하는 Software Router 구현을 통해 최적의 경로 정보를 현재 Endpoint들의 상태를 따라서 동적으로 감지하여 적용할 수 있다는 전제를 통해 구현
 
-![Untitled](CNI%2083416d835a3f46489399276f3e80eb63/Untitled%201.png)
+![non_overlay_network](img/non_overlay_network.png)
 
 BGP(Border Gateway Protocol) 을 사용한 CNI 구성의 특징
 
