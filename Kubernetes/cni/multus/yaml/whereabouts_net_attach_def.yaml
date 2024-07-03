@@ -1,0 +1,19 @@
+apiVersion: k8s.cni.cncf.io/v1
+kind: NetworkAttachmentDefinition
+metadata:
+  name: macvlan-whereabouts-net-attach-def
+  namespace: redhet-demo
+spec:
+  # Type : MacVLAN CNI Plugin 사용
+  # Whereabouts CNI Plugin은 IPAM CNI Plugin에 속함
+  # Range : Pod에 할당할 IP Pool
+  config: '{
+            "cniVersion": "0.3.1",
+            "type": "macvlan",
+            "master": "eth0",
+            "mode": "bridge",
+            "ipam": {
+                "type": "whereabouts",
+                "range": "10.2.130.0/24"
+            }
+        }'
