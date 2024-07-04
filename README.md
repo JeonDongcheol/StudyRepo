@@ -1,9 +1,7 @@
 # Index :
-> 공부 및 작업 과정에서 적어둘 내용들을 담았다.
+> 공부 및 작업 과정에서 진행한 내용 정리
 
-> 서투르다보니 다소 틀린 부분도 많은데 Feedback은 얼마든 환영
-
-> 22.09.01(Thur) K8s GPU Resource & Kubeflow Multiuser Isolation, Notebook 일부 작업
+> 24.07 일부 Notion 문서 Migration 작업 진행 중
 
 ## Contents
 1. [__Docker__](./Docker)
