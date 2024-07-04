@@ -9,7 +9,8 @@
 3. [__Kubeflow__](./Kubeflow)
 4. [__KServe__](./KServe)
 5. [__Python__](./python)
-6. [__Markdown__](./Markdown)
+6. [__Linux__](./linux)
+7. [__Markdown__](./Markdown)
 
 ------------------
 
