@@ -8,7 +8,8 @@
 2. [__Kubernetes__](./Kubernetes)
 3. [__Kubeflow__](./Kubeflow)
 4. [__KServe__](./KServe)
-5. [__Markdown__](./Markdown)
+5. [__Python__](./python)
+6. [__Markdown__](./Markdown)
 
 ------------------
 
