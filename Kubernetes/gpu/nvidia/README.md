@@ -294,7 +294,7 @@ nvidia-smi
 
 - 에러 화면
     
-    ![error_1]](img/error_1.png)
+    ![error_1](img/error_1.png)
     
 - 해결 방법
 - 
