@@ -94,7 +94,7 @@ apiVersion: kubeflow.org/v1
 kind: Notebook
 metadata:
   name: test-notebook # Notebook Name
-  namespace: matilda
+  namespace: dcjeon
   labels:
     app: test-notebook # Notebook Name
 spec:
