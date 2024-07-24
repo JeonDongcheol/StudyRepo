@@ -13,7 +13,7 @@ spec:
       - name: {notebook_name} # Notebook Name
         image: {registry_url}/{path}:{tag} # Conatiner Image URL
         imagePullPolicy: IfNotPresent
-        # Resource Limits, Requests setting
+        # Resource Limits, Requests setting (CPU, Memory, GPU)
         resources:
           limits:
             cpu: "2"
@@ -32,7 +32,20 @@ spec:
       securityContext:
         runAsUser: 1000
       volumes:
+      - name: shmdir
+        mountPath: /dev/shm
       - name: {pvc_name} 
         persistentVolumeClaim:
           claimName: {pvc_name} # Persistent Volume Claim Name Mount to Notebook Pod (in Same Namespace)
+      # Shared Memory
+      - name: shmdir
+        emptyDir:
+          medium: Memory
+          sizeLimit: "1Gi" # Shared Memory Size
+      # Set up Toleration to Schedule Correctly
+      tolerations:
+      - key: "target"
+        operator: "Equal"
+        value: "notebook"
+        effect: "NoSchedule"
       serviceAccountName: default-editor # Kubernetes Default Service Account (in Same Namespace)
