@@ -1,0 +1,38 @@
+apiVersion: kubeflow.org/v1
+kind: Notebook
+metadata:
+  name: {notebook_name}
+  namespace: {namespace}
+  labels:
+    app: {notebook_name} # Mapping with name
+spec:
+  template:
+    spec:
+      
+      containers:
+      - name: {notebook_name} # Notebook Name
+        image: {registry_url}/{path}:{tag} # Conatiner Image URL
+        imagePullPolicy: IfNotPresent
+        # Resource Limits, Requests setting
+        resources:
+          limits:
+            cpu: "2"
+            memory: 5Gi
+            nvidia.com/gpu: "1" # Set up NVIDIA GPU Resource
+          requests:
+            cpu: 200m
+            memory: 500Mi
+            nvidia.com/gpu : "1"
+        # Notebook Volume : At least 1 volume
+        volumeMounts:
+        - mountPath: /home/jovyan # Basic Path
+          name: {pvc_name}
+      imagePullSecrets:
+      - name: nexuscred # Docker Secret Name (in Same Namespace)
+      securityContext:
+        runAsUser: 1000
+      volumes:
+      - name: {pvc_name} 
+        persistentVolumeClaim:
+          claimName: {pvc_name} # Persistent Volume Claim Name Mount to Notebook Pod (in Same Namespace)
+      serviceAccountName: default-editor # Kubernetes Default Service Account (in Same Namespace)
