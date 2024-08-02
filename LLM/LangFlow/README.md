@@ -356,13 +356,13 @@ Input, Output에 대한 가이드를 정의하는 Prompt 설정
 
 OpenAI 기준 OpenAI API Key 를 입력 (그래야 OpenAI의 모델 사용이 가능)
 
-![3_api_key](img/3_api_key)
+![3_api_key](img/3_api_key.png)
 
 ### 4. 컴포넌트간 연결
 
 Flow를 만들기 위해 컴포넌트(노드)간 연결(Edge)
 
-![4_connect_each_component](img/4_connect_each_component)
+![4_connect_each_component](img/4_connect_each_component.png)
 
 ### 5. Build 및 Playground를 통한 테스트
 
