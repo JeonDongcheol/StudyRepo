@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: langflow-runtime
+  name: langflow-runtime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: langflow-runtime
+  template:
+    metadata:
+      labels:
+        app: langflow-runtime
+    spec:
+      containers:
+      - image: langflowai/langflow-backend:1.0.13
+        # Running Command
+        args:
+        - |
+          set -e && langflow run --backend-only --host 0.0.0.0 --port 7860
+        command:
+        - /bin/bash
+        - -c
+        env:
+        # Flow Path
+        - name: LANGFLOW_LOAD_FLOWS_PATH
+          value: /app/flows
+        - name: LANGFLOW_LOG_LEVEL
+          value: INFO
+        - name: DO_NOT_TRACK
+          value: "true"
+        name: langflow-runtime
+        volumeMounts:
+        - mountPath: /app/flows
+          name: langflow-runtime-flow-pvc
+        ports:
+        - containerPort: 7860
+          name: http
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /api/v1/version
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /api/v1/version
+            port: http
+        resources:
+          requests:
+            cpu: 2
+            memory: 4Gi
+      # Langflow의 Flow json 파일이 들어있는 PVC Mount
+      volumes:
+      - name: langflow-runtime-flow-pvc
+        persistentVolumeClaim:
+          claimName: langflow-runtime-flow-pvc
