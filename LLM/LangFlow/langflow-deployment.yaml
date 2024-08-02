@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: langflow
+  name: langflow
+spec:
+  replicas: 1 # Set Replicas via Traffic
+  selector:
+    matchLabels:
+      app: langflow
+  template:
+    metadata:
+      labels:
+        app: langflow
+    spec:
+      containers:
+      - image: langflowai/langflow:1.0.13
+        env:
+        # Set New PostgreSQL
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: mypassword123!
+        - name: POSTGRES_DB
+          value: postgres
+        name: langflow
+        ports:
+        # LangFlow Basic Port
+        - containerPort: 7860
