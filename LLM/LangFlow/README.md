@@ -314,7 +314,7 @@ kubectl expose deploy -n ${NAMESPACE} --port=7860 --type=LoadBalancer
                   requests:
                     cpu: 2
                     memory: 4Gi
-        			# Langflow의 Flow json 파일이 들어있는 PVC Mount
+              # Langflow의 Flow json 파일이 들어있는 PVC Mount
               volumes:
               - name: langflow-runtime-flow-pvc
                 persistentVolumeClaim:
