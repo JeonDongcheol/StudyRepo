@@ -24,6 +24,8 @@ spec:
           value: mypassword123!
         - name: POSTGRES_DB
           value: postgres
+        - name: DO_NOT_TRACK
+          value: "true"
         name: langflow
         ports:
         # LangFlow Basic Port
