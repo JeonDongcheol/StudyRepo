@@ -4,7 +4,7 @@
 
 ## Installation
 
-### Install by Docker → Kubernetes
+### Kubernetes by Deployment
 
 > Helm Install이 아닌 Docker Image를 받아서 Kubernetes 환경에 구성한 방법
 
