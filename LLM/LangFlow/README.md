@@ -342,37 +342,37 @@ kubectl expose deploy -n ${NAMESPACE} --port=7860 --type=LoadBalancer
 
 Flow를 구성하d는데 필요한 **컴포넌트(Prompt, LLM Model, Input, Ouput …)** 배치
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f0f57dac-70e0-4782-9dfe-1b756397554c/9a555b60-6924-4ad4-955a-de580031d113/Untitled.png)
+![1_component](img/1_component.png)
 
 ### 2. Prompt 정의
 
 Input, Output에 대한 가이드를 정의하는 Prompt 설정
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f0f57dac-70e0-4782-9dfe-1b756397554c/42637787-a8ca-4d3d-874f-64f1a692ea77/Untitled.png)
+![2_prompt_1](img/2_prompt_1.png)
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f0f57dac-70e0-4782-9dfe-1b756397554c/f0813b36-d57c-4088-96e3-06f64adfb50d/Untitled.png)
+![2_prompt_2](img/2_prompt_2.png)
 
 ### 3. 외부 LLM의 API Key 입력
 
 OpenAI 기준 OpenAI API Key 를 입력 (그래야 OpenAI의 모델 사용이 가능)
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f0f57dac-70e0-4782-9dfe-1b756397554c/b2914cc8-0b8e-4fca-b4f8-542f5fbd703f/Untitled.png)
+![3_api_key](img/3_api_key)
 
 ### 4. 컴포넌트간 연결
 
 Flow를 만들기 위해 컴포넌트(노드)간 연결(Edge)
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f0f57dac-70e0-4782-9dfe-1b756397554c/36f6b143-0948-4697-8364-6bf8ca6e26a3/Untitled.png)
+![4_connect_each_component](img/4_connect_each_component)
 
 ### 5. Build 및 Playground를 통한 테스트
 
 각 컴포넌트 단위로 **[>]** 버튼을 통해 빌드를 수행할 수 있고 특정 컴포넌트 이전에 Edge로 연결된 컴포넌트가 있따면 이전 컴포넌트들부터 **순차적으로 해당 컴포넌트까지 빌드를 수행**
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f0f57dac-70e0-4782-9dfe-1b756397554c/8e5063bd-d460-444f-b356-fa536737f153/Untitled.png)
+![5_build_playground_1](img/5_build_playground_1.png)
 
 빌드가 정상적으로 끝나면 **Playground** 에서 Chat Input을 넣고 Flow 기반으로 나온 Output Chat 내용을 확인 가능
 
-![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/f0f57dac-70e0-4782-9dfe-1b756397554c/7586455c-8c47-4f33-a82c-75141659d4ee/Untitled.png)
+![5_build_playground_2](img/5_build_playground_2.png)
 
 ## API
 
