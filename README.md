@@ -1,7 +1,7 @@
 # Index :
 > 공부 및 작업 과정에서 진행한 내용 정리
 
-> 24.07 일부 Notion 문서 Migration 작업 진행 중
+> 24.08 LLM > LangFlow 공부 추가
 
 ## Contents
 1. [__Docker__](./Docker)
