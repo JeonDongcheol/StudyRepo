@@ -594,3 +594,36 @@ API는 Flow를 LangFlow 외부에서 사용할 때 호출하는데, **LangFlow R
       ]
     }
     ```
+---
+
+## LangFlow Test
+
+### Case 1. LangFlow IDE의 Backend Replica를 늘렸을 때
+
+LangFlow UI에서는 지속적으로 API 호출 (컴포넌트 수정시, 위치 조정 및 줌 인/아웃시, 상태 체크 등등…)이 되는데, 그런 경우에는 문제가 없지만, Flow를 **Build** 하게 되면 이전 컴포넌트부터 순차적으로 Build를 수행하는데, 그 과정에서 Pod 여러 개로 분산되면서 에러가 발생
+
+→ LangFlow IDE 자체는 1개만 띄우고, Production 환경 (Runtime)에서는 Pod Replica를 여러 개로 조정하는 방법으로 진행하는 것이 좋아보임
+
+### Case 2. LangFlow Runtime에 잘못된 Flow JSON 파일을 넣은 경우
+
+LangFlow Runtime에 값이 잘못된 Flow.json 파일을 넣고 실행한 경우
+
+```json
+{
+    "detail": "Error running graph: Error building Component OpenAI: \n\n1 validation error for ChatOpenAI\n__root__\n  Did not find openai_api_key, please add an environment variable `OPENAI_API_KEY` which contains it, or pass `openai_api_key` as a named parameter. (type=value_error)"
+}
+```
+
+---
+
+## Error Report
+
+## 1. LangFlow Runtime Pod가 지속적으로 재시작하는 경우
+
+LangFlow Runtime을 배포하게 되면 지속적으로 CrashLoopBackOff 및 Pod 재시작하는 현상 발생
+
+```
+NAME                                             READY   STATUS             RESTARTS         AGE
+langflow-error-runtime-dcjeon-66d888c489-4zdnz   0/1     Running            46 (5m45s ago)   152m
+langflow-runtime-dcjeon-d4795b456-9ckfv          0/1     CrashLoopBackOff   33 (4m35s ago)   108m
+```
