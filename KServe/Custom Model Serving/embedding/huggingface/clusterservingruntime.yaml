@@ -1,0 +1,31 @@
+apiVersion: serving.kserve.io/v1alpha1
+kind: ClusterServingRuntime
+metadata:
+  name: {name}
+spec:
+  annotations:
+    prometheus.kserve.io/path: /metrics
+    prometheus.kserve.io/port: "8080"
+  containers:
+  - args:
+    - --model-id
+    - /mnt/models # Model Path (Model Pull from Storage Initializer Init-Container)
+    - --port
+    - "8080"
+    command:
+    - text-embeddings-router
+    image: ghcr.io/huggingface/text-embeddings-inference:turing-1.5 # Hugging Face Text Embedding Inference Container
+    name: huggingface
+    volumeMounts:
+    - mountPath: /dev/shm
+      name: shmdir
+  supportedModelFormats:
+  - name: {name_in_inference)
+    autoSelect: true
+    version: "1"
+  volumes:
+  # Shared Memory
+  - emptyDir:
+      medium: Memory
+      sizeLimit: 5Gi
+    name: shmdir
