@@ -1,0 +1,26 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: {name}
+  namespace: {namespace}
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: {cluster_serving_runtime_name}
+      resources:
+        limits:
+          cpu: {cpu}
+          memory: {memory}
+          nvidia.com/gpu: {gpu}
+        requests:
+          cpu: {cpu}
+          memory: {memory}
+          nvidia.com/gpu: {gpu}
+      storageUri: {storage_uri_path} # PVC, S3 ...
+    serviceAccountName: {service_account_name}
+    tolerations:
+    - effect: {effect}
+      key: {key}
+      value: {value}
+      operator: {operator}
