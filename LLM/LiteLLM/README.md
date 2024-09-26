@@ -1,6 +1,8 @@
 # LiteLLM & Lago
 
-> AI Serving Gateway인 LiteLLM과 Billing&Metering을 처리하는 Lago에 대한 문서
+> AI Serving Gateway인 LiteLLM 관련 README.md
+
+> Lago를 활용한 LiteLLM 호출 방법 추가 정리
 
 ## LiteLLM
 
