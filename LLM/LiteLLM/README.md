@@ -1,8 +1,6 @@
 # LiteLLM & Lago
 
-> AI Serving Gateway인 LiteLLM 관련 README.md
-
-> Lago를 활용한 LiteLLM 호출 방법 추가 정리
+> AI Serving Gateway인 LiteLLM과 Billing&Metering을 처리하는 Lago에 대한 문서
 
 ## LiteLLM
 
@@ -66,15 +64,13 @@ LiteLLM Python SDK에서 쓰이는 함수는 `completion` 과 `embedding()` 으�
     ```
 ---
 
-## Lago in LiteLLM
+## LiteLLM + Lago
 
 LiteLLM에서 Logging Callback을 위한 다양한 도구 중 Billing, Metering을 담당하는 Lago 사용 방법
 
-### Lago in Python
+LiteLLM Python SDK에는 Lago를 지원하는 모듈이 있어 이를 사용할 수 있지만, 경우에 따라 Lago SDK 자체를 사용할 수 있음
 
-> PyPi 패키지 이름 : lago-python-client
-
-### Lago & LiteLLM in Python
+### 1. LiteLLM Using LiteLLM's Lago Module
 
 - Environment Variables
 
@@ -123,6 +119,96 @@ LiteLLM에서 Logging Callback을 위한 다양한 도구 중 Billing, Metering�
     )
 
     print(embedding_response)
+    ```
+
+### 2. LiteLLM SDK + Lago SDK
+
+- LLM Model Sample
+
+    ```python
+    """
+    Import LiteLLM's Module
+    """
+    import uuid
+    from lago_python_client.client import Client
+    from lago_python_client.exceptions import LagoApiError
+    from lago_python_client.models.event import Event
+
+    """
+    Same as before
+    """
+    
+    # Do Not Set proxy_server_request Field
+    response = litellm.completion(
+        model="openai/starcoder",
+        messages=[DATA],
+        api_base=LITELLM_API_BASE,
+        api_key=LLM_API_KEY
+    )
+
+    print("# Usage : {}".format(response.usage))
+
+    # Set Lago Client
+    lago_client = Client(
+        api_key=LAGO_API_KEY,
+        api_url=LAGO_API_BASE
+    )
+
+    LAGO_EXTERNAL_SUBSCRIPTION_ID="lago-external-subscription-id" # Lago External Subscription ID
+    LAGO_METRIC_CODE="dcjeon-metric" # Lago Billable Metric Code
+
+    # Seperate by type (Input/Output Token)
+
+    # Configure Input Event Format
+    lago_input_properties = {
+        "type": "input",
+        "model": "openai/starcoder",
+        "tokens": response.usage.prompt_tokens
+    }
+
+    # Mapping to Lago Event Class
+    try:
+        lago_input_event = Event(
+            transaction_id=str(uuid.uuid4()),
+            external_subscription_id=LAGO_EXTERNAL_SUBSCRIPTION_ID,
+            code=LAGO_METRIC_CODE,
+            properties=lago_input_properties
+        )
+    except LagoApiError as e:
+        print("Fail to Make Lago Event Format : {}".format(lago_input_properties["type"]))
+        raise LagoApiError()
+
+    # Create Lago's Event
+    try:
+        lago_input_event_response = lago_client.events.create(lago_input_event)
+    except LagoApiError as e:
+        print("Fail to Create Lago Input Event...")
+        raise LagoApiError()
+
+    # Configure Output Event Format
+    lago_output_properties = {
+        "type": "output",
+        "model": "openai/starcoder",
+        "tokens": response.usage.completion_tokens
+    }
+
+    # Mapping to Lago Event Class
+    try:
+        lago_output_event = Event(
+            transaction_id=str(uuid.uuid4()),
+            external_subscription_id=LAGO_EXTERNAL_SUBSCRIPTION_ID,
+            code=LAGO_METRIC_CODE,
+            properties=lago_output_properties
+        )
+    except LagoApiError as e:
+        print("Fail to Make Lago Event Format : {}".format(lago_output_properties["type"]))
+
+    # Create Lago's Event
+    try:
+        lago_output_event_response = lago_client.events.create(lago_output_event)
+    except LagoApiError as e:
+        print("Fail to Create Lago Output Event...")
+        raise LagoApiError()
     ```
 
 ---
