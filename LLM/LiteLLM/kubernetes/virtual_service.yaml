@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {virtual_service_name}
+  namespace: {namespace}
+spec:
+  gateways:
+  - {gateway_name}
+  hosts:
+  - {litellm_host_name}
+  http:
+  - match:
+    - uri:
+        prefix: /
+    rewrite:
+      uri: /
+    route:
+    - destination:
+        host: {litellm_service_name}
+        port:
+          number: 4000
