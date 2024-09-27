@@ -1,6 +1,8 @@
-# LiteLLM & Lago
+# LiteLLM
 
-> AI Serving Gateway인 LiteLLM과 Billing&Metering을 처리하는 Lago에 대한 문서
+> AI Serving Gateway인 LiteLLM과 Billing&Metering을 처리하는 Lago을 LiteLLM과 함께 사용한 내용
+
+> 추가로 kubernetes 환경에서 배포한 내용 정리
 
 ## LiteLLM
 
@@ -210,6 +212,89 @@ LiteLLM Python SDK에는 Lago를 지원하는 모듈이 있어 이를 사용할 
         print("Fail to Create Lago Output Event...")
         raise LagoApiError()
     ```
+
+---
+
+## LiteLLM on Kubernetes
+
+> LiteLLM을 Kubernetes (Helm)을 사용하여 배포한 내용 (Namespace의 경우 필요한 경우 kubectl을 통한 생성 진행)
+
+### Prerequisite
+
+values.yaml 파일에 사용될 `Env ConfigMap` 과 `Database User Secret` 을 생성
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: litellm-env-configmap
+  namespace: {NAMESPACE}
+data:
+  STORE_MODEL_IN_DB: "True" # Env for Enable to Save in Database
+  LITELLM_LOG: "DEBUG" # LiteLLM Log Level
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: psql-secret
+  namespace: {namespace}
+data:
+  username: {DB_USERNAME_BASE64}
+  password: {DB_PASSWORD_BASE64}
+```
+
+```shell
+kubectl apply -f config_and_secret.yaml
+```
+
+### Deploy by Helm
+
+1. Edit values.yaml
+
+  기본적으로 LiteLLM에서 제공하는 values.yaml 파일을 사용하지만, 이미 배포된 PostgreSQL과 Helm 기반으로 배포한 LiteLLM을 엮기 위한 values.yaml 파일 추가 수정
+
+  ```yaml
+  # ...
+  image:
+    repository: ghcr.io/berriai/litellm
+    pullPolicy: IfNotPresent
+    tag: "main-v1.48.2"
+  # ...
+  # LiteLLM ConfigMap (Used by os.environ)
+  environmentConfigMaps:
+  - litellm-env-configmap
+  # ...
+  masterkey: "sk-1234" # LiteLLM Master Key (Also Used by Login)
+  # ...
+
+  # Setup Database Access
+  db:
+    useExisting: true # If true, Use Existing Database
+
+    endpoint: postgresql.database.svc.cluster.local # $(DATABASE_HOST) in url
+    database: litellm # $(DATABASE_NAME) in url
+    url: postgresql://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@$(DATABASE_HOST)/$(DATABASE_NAME)
+    # Database User Name & Password Secret
+    # $(DATABASE_USERNAME), $(DATABASE_PASSWORD) in url
+    secret:
+      name: psql-secret
+      usernameKey: username
+      passwordKey: password
+  # ...
+  ```
+
+2. Helm Install
+
+  수정한 values.yaml 파일 기반의 Helm install 진행
+
+  ```shell
+  helm install litellm \
+  deploy/charts/litellm-helm \
+  -n ${NAMESPACE}
+
+  # 배포 진행 상태 확인
+  watch 'kubectl get pod -n ${NAMESPACE}'
+  ```
 
 ---
 
