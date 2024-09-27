@@ -4,7 +4,7 @@
 
 > 추가로 kubernetes 환경에서 배포한 내용 정리
 
-## LiteLLM
+## LiteLLM을 통한 Model API 호출 방법
 
 ### cURL 기반 LiteLLM 호출
 
@@ -228,7 +228,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: litellm-env-configmap
-  namespace: {NAMESPACE}
+  namespace: litellm-dcjeon
 data:
   STORE_MODEL_IN_DB: "True" # Env for Enable to Save in Database
   LITELLM_LOG: "DEBUG" # LiteLLM Log Level
@@ -237,7 +237,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: psql-secret
-  namespace: {namespace}
+  namespace: litellm-dcjeon
 data:
   username: {DB_USERNAME_BASE64}
   password: {DB_PASSWORD_BASE64}
@@ -251,50 +251,111 @@ kubectl apply -f config_and_secret.yaml
 
 1. Edit values.yaml
 
-  기본적으로 LiteLLM에서 제공하는 values.yaml 파일을 사용하지만, 이미 배포된 PostgreSQL과 Helm 기반으로 배포한 LiteLLM을 엮기 위한 values.yaml 파일 추가 수정
+    기본적으로 LiteLLM에서 제공하는 values.yaml 파일을 사용하지만, 이미 배포된 PostgreSQL과 Helm 기반으로 배포한 LiteLLM을 엮기 위한 values.yaml 파일 추가 수정
 
-  ```yaml
-  # ...
-  image:
-    repository: ghcr.io/berriai/litellm
-    pullPolicy: IfNotPresent
-    tag: "main-v1.48.2"
-  # ...
-  # LiteLLM ConfigMap (Used by os.environ)
-  environmentConfigMaps:
-  - litellm-env-configmap
-  # ...
-  masterkey: "sk-1234" # LiteLLM Master Key (Also Used by Login)
-  # ...
+    ```yaml
+    # ...
+    image:
+        repository: ghcr.io/berriai/litellm
+        pullPolicy: IfNotPresent
+        tag: "main-v1.48.2"
+    # ...
+    
+    # LiteLLM ConfigMap (Used by os.environ)
+    environmentConfigMaps:
+    - litellm-env-configmap
+    
+    # ...
+    masterkey: "sk-1234" # LiteLLM Master Key (Also Used by Login)
+    # ...
 
-  # Setup Database Access
-  db:
-    useExisting: true # If true, Use Existing Database
+    # Setup Database Access
+    db:
+        useExisting: true # If true, Use Existing Database
 
-    endpoint: postgresql.database.svc.cluster.local # $(DATABASE_HOST) in url
-    database: litellm # $(DATABASE_NAME) in url
-    url: postgresql://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@$(DATABASE_HOST)/$(DATABASE_NAME)
-    # Database User Name & Password Secret
-    # $(DATABASE_USERNAME), $(DATABASE_PASSWORD) in url
-    secret:
-      name: psql-secret
-      usernameKey: username
-      passwordKey: password
-  # ...
-  ```
+        endpoint: postgresql.database.svc.cluster.local # $(DATABASE_HOST) in url
+        database: litellm # $(DATABASE_NAME) in url
+        url: postgresql://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@$(DATABASE_HOST)/$(DATABASE_NAME)
+        # Database User Name & Password Secret
+        # $(DATABASE_USERNAME), $(DATABASE_PASSWORD) in url
+        secret:
+            name: psql-secret
+            usernameKey: username
+            passwordKey: password
+    
+    # ...
+    ```
 
 2. Helm Install
+  
+    수정한 values.yaml 파일 기반의 Helm install 진행
 
-  수정한 values.yaml 파일 기반의 Helm install 진행
+    ```shell
+    helm install litellm \
+    deploy/charts/litellm-helm \
+    -n litellm-dcjeon
 
-  ```shell
-  helm install litellm \
-  deploy/charts/litellm-helm \
-  -n ${NAMESPACE}
+    # 배포 진행 상태 확인
+    watch 'kubectl get pod -n litellm-dcjeon'
+    ```
 
-  # 배포 진행 상태 확인
-  watch 'kubectl get pod -n ${NAMESPACE}'
-  ```
+### Expose by Domain
+
+외부에서 테스트를 진행하기 위해 Istio를 통해 LiteLLM을 노출 (테스트는 위에서 진행한 Ptyhon 코드 기반으로 생략)
+
+1. Gateway
+
+```yaml
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: litellm-gateway
+  namespace: litellm-dcjeon
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - hosts:
+    - litellm.my-llm-service.com
+    port:
+      name: http
+      number: 80
+      protocol: HTTP
+```
+
+```shell
+kubectl apply -f gateway.yaml
+```
+
+2. Virtual Service
+
+```yaml
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: litellm-virtual-service
+  namespace: litellm-dcjeon
+spec:
+  gateways:
+  - litellm-gateway
+  hosts:
+  - litellm.my-llm-service.com
+  http:
+  - match:
+    - uri:
+        prefix: /
+    rewrite:
+      uri: /
+    route:
+    - destination:
+        host: litellm
+        port:
+          number: 4000
+```
+
+```shell
+kubectl apply -f virtual_service.yaml
+```
 
 ---
 
@@ -365,3 +426,18 @@ LiteLLM.Logging: is sentry capture exception initialized None
             }
         }
         ```
+### 2. LiteLLM을 Kubernetes에 배포할 때 나타나는 Database Connection Error
+
+LiteLLM을 Helm/Deployment로 배포할 때 `InitContainer` 인 `db-ready` Container 안에서 Database Connection을 수행할 때 Connection Error 발생
+
+```text
+Waiting for database to be ready 0
+psql: error: could not translate host name "postgresql.database.svc.cluster.local:5432" to address: Name or service not known
+Waiting for database to be ready 1
+...
+Waiting for database to be ready 59
+psql: error: could not translate host name "postgresql.database.svc.cluster.local:5432" to address: Name or service not known
+Database failed to become ready before we gave up waiting.
+```
+
+Database Connection을 60회 수행 후 정상적으로 연결이 되지 않으면 에러 발생 (간헐적으로 정상적으로 연결)
