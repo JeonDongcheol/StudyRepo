@@ -1,5 +1,3 @@
-# LiteLLM Local 환경 배포
-
 # 1. LiteLLM Local 환경 실행
 
 ## 1-1. PostgreSQL 설치 및 배포
@@ -85,6 +83,7 @@ vi .env
 ```bash
 LITELLM_MASTER_KEY=sk-****
 DATABASE_URL=postgresql://postgres:PASSWORD@localhost:5432/litellm_temp_01
+STORE_MODEL_IN_DB=true
 ```
 
 ### Prisma 스키마 적용
@@ -117,4 +116,108 @@ model_list:
     litellm_params:
       model: openai/gpt-4
       api_key: os.environ/OPENAI_API_KEY
+```
+
+## 1-4. LiteLLM 실행
+
+### Local 환경에서 실행
+
+```bash
+litellm --config config.yaml --port 4000
+```
+
+# 2. LiteLLM UI 접속 후 확인
+
+[`localhost:4000/ui`](http://localhost:4000/ui) 에 접속하여 아래와 같은 계정 정보로 로그인하면 LiteLLM UI 접속 가능
+
+- ID: admin
+- Password: sk-**** (Master Key)
+
+**[Teams]** 탭으로 이동하여 새롭게 팀 추가
+
+**[Models + Endpoints]** 탭으로 이동하여 기존 모델 연동
+
+**[Virtual Keys]** 탭으로 이동하여 API Key 기반의 LiteLLM을 활용하여 모델 통신을 할 수 있도록 키 발급
+
+# 3. API 테스트
+
+Postman을 활용한 LiteLLM API 테스트
+
+- 모델: Perplexity Sonar Pro 모델
+- API Endpoint: `/v1/chat/completions`
+- 추가 내용: Master Key가 아닌, 발급 받은 Virtual Key를 통한 API 테스트 진행
+
+### Request Body
+
+```json
+{
+  "model": "dcjeon-sonar-pro",
+  "messages": [
+    {
+      "role": "system",
+      "content": "사용자의 질문에 대하여 # 카테고리\n# 핵심 내용\n# 전체 내용 요약\n# 키워드 형태로 알려주세요."
+    },
+    {
+      "role": "user",
+      "content": "최근 1주일 동안 서울 날씨에 대해서 알려주세요."
+    }
+  ]
+}
+```
+
+### Response Body
+
+```json
+{
+  "id": "91369226-0506-40a2-9afa-ef2ed624770a",
+  "created": 1760594995,
+  "model": "perplexity/sonar-pro",
+  "object": "chat.completion",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "# 카테고리\n최근 서울 날씨 (2025년 10월 9일~16일)\n\n# 핵심 내용\n최근 일주일간 서울은 **비가 자주 내리고 ...m\n- **기온 변동**: 최저 15.7℃ ~ 최고 28.0℃\n- **잦은 강수**: 일주일 중 5일 비 기록\n- **흐린 날씨**: 평균 운량 9.0~10.0 지속\n- **급격한 기온 하강**: 10월 10일 크게 하락\n- **불안정한 날씨 패턴**: 비-회복-비 반복",
+        "role": "assistant"
+      },
+      "provider_specific_fields": {
+        "delta": {
+          "role": "assistant",
+          "content": ""
+        }
+      }
+    }
+  ],
+  "usage": {
+    "completion_tokens": 644,
+    "prompt_tokens": 48,
+    "total_tokens": 692,
+    "cost": {
+      "input_tokens_cost": 0,
+      "output_tokens_cost": 0.01,
+      "request_cost": 0.006,
+      "total_cost": 0.016
+    },
+    "search_context_size": "low"
+  },
+  "citations": [
+    "https://www.weather.go.kr/w/observation/land/past-obs/obs-by-day.do",
+    "https://ko.allmetsat.com/weather-forecast/south-korea.php?city=seoul-kr",
+    "..."
+  ],
+  "search_results": [
+    {
+      "title": "과거관측 - 일별자료 - 기상청 날씨누리",
+      "url": "https://www.weather.go.kr/w/observation/land/past-obs/obs-by-day.do",
+      "date": "2024-01-01",
+      "last_updated": "2025-10-16",
+      "snippet": "일별자료 ; 1일, 2일 ; 평균기온:20.5℃ 최고기온:25.6℃ 최저기온:16.7℃ 평균운량:4.8 일강수량: -, 평균기온:21.4℃ 최고기온:25.8℃ 최저기온:17.3℃ 평균운량:9.0 일강수량: -",
+      "source": "web"
+    },
+    {
+	    "...": "..."
+    }
+  ]
+}
 ```
