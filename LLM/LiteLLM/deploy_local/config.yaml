@@ -1,0 +1,3 @@
+general_settings:
+  master_key: sk-jeondongcheol-1234
+  database_url: "postgresql://postgres:dongcheol1234@localhost:5432/litellm_temp_01"
