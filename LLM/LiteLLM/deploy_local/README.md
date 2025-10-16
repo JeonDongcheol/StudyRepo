@@ -1,5 +1,7 @@
 # 1. LiteLLM Local 환경 실행
 
+> MacOS 기반 환경에서 실행하였기 때문에, Shell Script 부분에서 brew 부분은 따로 조사하여 진행해야함.
+
 ## 1-1. PostgreSQL 설치 및 배포
 
 LiteLLM Database 사용을 위한 PostgreSQL 설치
